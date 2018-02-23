@@ -19,20 +19,19 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	void ToggleLight();
-
 public:	
 	// Called every frame
 	 virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(VisibleAnywhere, Category = "Light Button")
+	 void ToggleLight();
+
+	UPROPERTY(VisibleAnywhere, Category = "Component")
 		class UPointLightComponent* PointLight;
 
-	UPROPERTY(VisibleAnywhere, Category = "Light Button")
+	UPROPERTY(VisibleAnywhere, Category = "Sphere")
 		class USphereComponent* LightSphere;
 
-	UPROPERTY(VisibleAnywhere, Category = "Light Button")
+	UPROPERTY(VisibleAnywhere, Category = "LightIntensity")
 		float LightIntensity;
-
 
 };

@@ -16,8 +16,16 @@ public:
 	// Sets default values for this actor's properties
 	AGameManager();
 
+	static const FString YELLOW_KEY;
+
 private:
-	TArray<ALightButton> Lights;
+	TMap<FString, class ALightButton> Lights;
+	bool CheckRefCast(TWeakObjectPtr<AActor> ActorRef, const UClass *ClassCast) const;
+
+	float AccumulatedDeltaTime;
+	float LightToogleDelay;
+
+	ALightButton* LightButtonYellow;
 
 protected:
 	// Called when the game starts or when spawned

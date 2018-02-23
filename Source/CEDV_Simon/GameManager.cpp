@@ -65,12 +65,14 @@ void AGameManager::BeginPlay()
 void AGameManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 	AccumulatedDeltaTime += DeltaTime;
 	if (AccumulatedDeltaTime >= LightToogleDelay)
 	{
 		if (LightButtonYellow) {
 			LightButtonYellow->ToggleLight();
 		}
+		AccumulatedDeltaTime = 0.0f;
 	}
 }
 

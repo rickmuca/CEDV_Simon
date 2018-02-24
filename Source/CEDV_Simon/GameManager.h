@@ -20,12 +20,18 @@ public:
 
 private:
 	TMap<FString, class ALightButton> Lights;
+	ALightButton* AssignPointLightComponentToLightButton(TWeakObjectPtr<AActor> LightRef,
+		                                        TWeakObjectPtr<AActor> LightButtonRef);
+
 	bool CheckRefCast(TWeakObjectPtr<AActor> ActorRef, const UClass *ClassCast) const;
 
 	float AccumulatedDeltaTime;
 	float LightToogleDelay;
 
 	ALightButton* LightButtonYellow;
+	ALightButton* LightButtonBlue;
+	ALightButton* LightButtonRed;
+	ALightButton* LightButtonGreen;
 
 protected:
 	// Called when the game starts or when spawned
@@ -35,6 +41,4 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	
-	
 };

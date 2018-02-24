@@ -25,40 +25,90 @@ void AGameManager::BeginPlay()
 
 	TWeakObjectPtr<AActor> YellowLightRef;
 	FString YellowLightCtl = FString(TEXT("YellowLight"));
+	TWeakObjectPtr<AActor> YellowLightButtonRef;
+	FString LightButtonCtl = FString(TEXT("LightButtonYellow"));
 
-	TWeakObjectPtr<AActor> LightButtonYellowRef;
-	FString LightButtonYellowCtl = FString(TEXT("LightButtonYellow"));
+	TWeakObjectPtr<AActor> BlueLightRef;
+	FString BlueLightCtl = FString(TEXT("BlueLight"));
+	TWeakObjectPtr<AActor> BlueLightButtonRef;
+	FString BlueButtonCtl = FString(TEXT("LightButtonBlue"));
+
+	TWeakObjectPtr<AActor> RedLightRef;
+	FString RedLightCtl = FString(TEXT("RedLight"));
+	TWeakObjectPtr<AActor> RedLightButtonRef;
+	FString RedButtonCtl = FString(TEXT("LightButtonRed"));
+
+	TWeakObjectPtr<AActor> GreenLightRef;
+	FString GreenLightCtl = FString(TEXT("Greenlight"));
+	TWeakObjectPtr<AActor> GreenLightButtonRef;
+	FString GreenButtonCtl = FString(TEXT("LightButtonGreen"));
 	
 	bool allFound = false;
-	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr && !allFound; ++ActorItr)
 	{
 		if (YellowLightCtl.Equals(ActorItr->GetName()))
 		{
-			// Conversion to smart pointer 
 			YellowLightRef = *ActorItr;
 		}
-		else if (LightButtonYellowCtl.Equals(ActorItr->GetName())) 
+		else if (LightButtonCtl.Equals(ActorItr->GetName())) 
 		{
-			LightButtonYellowRef = *ActorItr;
+			YellowLightButtonRef = *ActorItr;
+		}
+		else if (BlueLightCtl.Equals(ActorItr->GetName()))
+		{
+			BlueLightRef = *ActorItr;
+		}
+		else if (BlueButtonCtl.Equals(ActorItr->GetName()))
+		{
+			BlueLightButtonRef = *ActorItr;
+		}
+		else if (RedLightCtl.Equals(ActorItr->GetName()))
+		{
+			RedLightRef = *ActorItr;
+		}
+		else if (RedButtonCtl.Equals(ActorItr->GetName()))
+		{
+			RedLightButtonRef = *ActorItr;
+		}
+		else if (GreenLightCtl.Equals(ActorItr->GetName()))
+		{
+			GreenLightRef = *ActorItr;
+		}
+		else if (GreenButtonCtl.Equals(ActorItr->GetName()))
+		{
+			GreenLightButtonRef = *ActorItr;
 		}
 
-		if (YellowLightRef.IsValid() && LightButtonYellowRef.IsValid())
+		if (YellowLightRef.IsValid() 
+			&& YellowLightButtonRef.IsValid()
+			&& YellowLightRef.IsValid()
+			&& BlueLightButtonRef.IsValid()
+			&& BlueLightRef.IsValid()
+			&& RedLightButtonRef.IsValid()
+			&& RedLightRef.IsValid()
+			&& GreenLightButtonRef.IsValid()
+			&& GreenLightRef.IsValid())
 		{
 			allFound = true;
 		}
 	}
 
-	if (CheckRefCast(YellowLightRef, APointLight::StaticClass()) &&
-		CheckRefCast(LightButtonYellowRef, ALightButton::StaticClass())) 
+	LightButtonYellow = AssignPointLightComponentToLightButton(YellowLightRef, YellowLightButtonRef);
+	LightButtonBlue = AssignPointLightComponentToLightButton(BlueLightRef, BlueLightButtonRef);
+	LightButtonRed = AssignPointLightComponentToLightButton(RedLightRef, RedLightButtonRef);
+	LightButtonGreen = AssignPointLightComponentToLightButton(GreenLightRef, GreenLightButtonRef);
+
+	/*if (CheckRefCast(YellowLightRef, APointLight::StaticClass()) &&
+		CheckRefCast(YellowLightButtonRef, ALightButton::StaticClass())) 
 	{
 		APointLight* PointLightComponentPtr =
 			Cast<APointLight>(YellowLightRef.Get());
 
-		LightButtonYellow = Cast<ALightButton>(LightButtonYellowRef.Get());
+		LightButtonYellow = Cast<ALightButton>(YellowLightButtonRef.Get());
 		LightButtonYellow->PointLight = PointLightComponentPtr->PointLightComponent;
 
 		//Lights.Emplace(YELLOW_KEY, LightButtonComponentPtr);
-	}
+	}*/
 }
 
 // Called every frame
@@ -72,7 +122,37 @@ void AGameManager::Tick(float DeltaTime)
 		if (LightButtonYellow) {
 			LightButtonYellow->ToggleLight();
 		}
+
+		if (LightButtonBlue) {
+			LightButtonBlue->ToggleLight();
+		}
+
+		if (LightButtonRed) {
+			LightButtonRed->ToggleLight();
+		}
+
+		if (LightButtonGreen) {
+			LightButtonGreen->ToggleLight();
+		}
 		AccumulatedDeltaTime = 0.0f;
+	}
+}
+
+ALightButton* AGameManager::AssignPointLightComponentToLightButton(TWeakObjectPtr<AActor> LightRef,
+	                                        TWeakObjectPtr<AActor> LightButtonRef) {
+
+	if (CheckRefCast(LightRef, APointLight::StaticClass()) &&
+		CheckRefCast(LightButtonRef, ALightButton::StaticClass()))
+	{
+		APointLight* PointLightComponentPtr = Cast<APointLight>(LightRef.Get());
+
+		ALightButton* LightButton = Cast<ALightButton>(LightButtonRef.Get());
+		LightButton->PointLight = PointLightComponentPtr->PointLightComponent;
+		return LightButton;
+	}
+	else 
+	{
+		return NULL;
 	}
 }
 

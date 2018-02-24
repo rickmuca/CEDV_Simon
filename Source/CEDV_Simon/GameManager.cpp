@@ -8,19 +8,15 @@
 #include "Runtime/Engine/Classes/Engine/PointLight.h"
 #include "Runtime/Core/Public/Math/UnrealMathUtility.h"
 
-const int32 AGameManager::YELLOW_KEY = 0;
-const int32 AGameManager::BLUE_KEY = 1;
-const int32 AGameManager::RED_KEY = 2;
-const int32 AGameManager::GREEN_KEY = 3;
-
-const int32 AGameManager::SEQ_MULTIPLIER = 4;
+const int32 GameStatus::YELLOW_KEY = 0;
+const int32 GameStatus::BLUE_KEY = 1;
+const int32 GameStatus::RED_KEY = 2;
+const int32 GameStatus::GREEN_KEY = 3;
 
 // Sets default values
 AGameManager::AGameManager() :
 	AccumulatedDeltaTime(0.0f),
-	LightToogleDelay(1.5f),
-	Level(1),
-	CurrentScore(0)
+	LightToogleDelay(1.5f)
 {
 	this->CurrentStatus = new GameStatus();
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -148,10 +144,11 @@ void AGameManager::BeginPlay()
 	LightButtonGreen = AssignPointLightComponentToLightButton(GreenLightRef, GreenLightButtonRef, GreenPlaneRef);
 
 	if (CheckRefCast(ScoreControllerRef, AScoreController::StaticClass())) {
-		ScoreControllerPtr = Cast<AScoreController>(ScoreControllerRef.Get());
+		AScoreController* ScoreControllerPtr = Cast<AScoreController>(ScoreControllerRef.Get());
+		CurrentStatus->SetScoreController(ScoreControllerPtr);
 	}
 
-	this->SetUpLevel();
+	CurrentStatus->SetUpLevel();
 }
 
 // Called every frame
@@ -170,38 +167,38 @@ void AGameManager::Tick(float DeltaTime)
 			return;
 		}
 
-		if (CurrentSequenceIndex > Sequence.Num() - 1) {
+		if (CurrentStatus->EndOfSequenceReached()) {
 			CurrentStatus->SetPlayingSequence(false);//PlaySequence = false;
 			CurrentStatus->SetWaitingForPlayerMove(true);//WaitingForPlayerMove = true;
 		}
 
 		if (CurrentStatus->IsWaitingForPlayerMove()) {
 			// Ejemplo de incrementar puntuación
-			CurrentScore = CurrentScore + 100;
-			ScoreControllerPtr->IncrementScoreBy(CurrentScore);
+			CurrentStatus->IncrementScoreBy(100);
+			CurrentStatus->ResetCurrentSequenceIndex();
 		}
 		else {
 			bool match = false;
-			switch (Sequence[CurrentSequenceIndex]) {
-			case AGameManager::YELLOW_KEY:
+			switch (CurrentStatus->GetCurrentItemInSequence()) {
+			case GameStatus::YELLOW_KEY:
 				if (LightButtonYellow) {
 					LastToggled = LightButtonYellow;
 					match = true;
 				}
 				break;
-			case AGameManager::BLUE_KEY:
+			case GameStatus::BLUE_KEY:
 				if (LightButtonBlue) {
 					LastToggled = LightButtonBlue;
 					match = true;
 				}
 				break;
-			case AGameManager::RED_KEY:
+			case GameStatus::RED_KEY:
 				if (LightButtonRed) {
 					LastToggled = LightButtonRed;
 					match = true;
 				}
 				break;
-			case AGameManager::GREEN_KEY:
+			case GameStatus::GREEN_KEY:
 				if (LightButtonGreen) {
 					LastToggled = LightButtonGreen;
 					match = true;
@@ -211,26 +208,10 @@ void AGameManager::Tick(float DeltaTime)
 
 			if (match) {
 				LastToggled->ToggleLight();
-				CurrentSequenceIndex++;
+				CurrentStatus->IncrementCurrentSequenceIndex();
 			}
 		}
 	}
-}
-
-void AGameManager::SetUpLevel() {
-	Sequence.Empty();
-	for (int i = 0; i < Level * AGameManager::SEQ_MULTIPLIER; i++) {
-		Sequence.Emplace(FMath::RandRange(0, 3));
-	}
-
-	CurrentSequenceIndex = 0;
-	CurrentStatus->SetWaitingForPlayerMove(false);
-	CurrentStatus->SetPlayingSequence(true);
-}
-
-void AGameManager::LevelUp() {
-	Level++;
-	this->SetUpLevel();
 }
 
 ALightButton* AGameManager::AssignPointLightComponentToLightButton(TWeakObjectPtr<AActor> LightRef,

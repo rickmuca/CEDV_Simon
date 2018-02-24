@@ -18,12 +18,6 @@ public:
 	// Sets default values for this actor's properties
 	AGameManager();
 
-	static const int32 YELLOW_KEY;
-	static const int32 BLUE_KEY;
-	static const int32 RED_KEY;
-	static const int32 GREEN_KEY;
-	static const int32 SEQ_MULTIPLIER;
-
 private:
 	GameStatus* CurrentStatus;
 	float AccumulatedDeltaTime;
@@ -35,20 +29,9 @@ private:
 	ALightButton* LightButtonGreen;
 	ALightButton* LastToggled;
 
-	AScoreController* ScoreControllerPtr;
-
-	int32 Level;
-
-	int32 CurrentSequenceIndex;
-	TArray<int32> Sequence;
-	int32 CurrentScore;
-
 	TMap<FString, class ALightButton> Lights;
 
 private:
-	void SetUpLevel();
-	void LevelUp();
-
 	ALightButton* AssignPointLightComponentToLightButton(TWeakObjectPtr<AActor> LightRef,
 		                                        TWeakObjectPtr<AActor> LightButtonRef,
 												TWeakObjectPtr<AActor> PlaneRef);

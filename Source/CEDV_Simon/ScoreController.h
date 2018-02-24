@@ -10,9 +10,6 @@ UCLASS()
 class CEDV_SIMON_API AScoreController : public AActor
 {
 	GENERATED_BODY()
-	
-private:
-	static const FString SCORE_TAG;
 
 public:	
 	// Sets default values for this actor's properties

@@ -31,17 +31,11 @@ bool GameStatus::IsPlayingSequence()
 void GameStatus::SetWaitingForPlayerMove(bool value)
 {
 	this->WaitingForPlayerMove = value;
-	if (this->WaitingForPlayerMove) {
-		this->ShowGo();
-	}
 }
 
 void GameStatus::SetPlayingSequence(bool value)
 {
 	this->PlaySequence = value;
-	if (this->PlaySequence) {
-		this->ShowReady();
-	}
 }
 
 void GameStatus::SetScoreController(AScoreController* ScoreControllerPtr) 

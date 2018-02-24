@@ -5,8 +5,6 @@
 #include "TextWidgetTypes.h"
 #include "TextBlock.h"
 
-const FString AScoreController::SCORE_TAG = "Score: ";
-
 // Sets default values
 AScoreController::AScoreController()
 {
@@ -38,6 +36,7 @@ void AScoreController::BeginPlay()
 			pResultTextWidget->AddToViewport();
 			pResultText = (UTextBlock*)pResultTextWidget
 				->GetWidgetFromName("TextResultWidget");
+			this->IncrementScoreBy(0);
 		}
 	}
 }
@@ -50,8 +49,9 @@ void AScoreController::Tick(float DeltaTime)
 
 void AScoreController::IncrementScoreBy(int32 points) 
 {
-	FString TextToShow = SCORE_TAG + FString::FromInt(points);
+	FString TextToShow = "";
 	if (pScoreText.IsValid()) {
+		TextToShow = "Score: " + FString::FromInt(points);
 		pScoreText->SetText(FText::FromString(TextToShow));
 	}
 }
@@ -87,7 +87,7 @@ void AScoreController::ShowReady()
 {
 	if (pResultText.IsValid())
 	{
-		pResultText->SetText(FText::FromString("READY!!!"));
+		pResultText->SetText(FText::FromString("READY..."));
 		pResultText->SetVisibility(ESlateVisibility::Visible);
 	}
 }

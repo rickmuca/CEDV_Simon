@@ -11,7 +11,7 @@ ALightButton::ALightButton() :
 	LightTurnedOnDelay(2.0f),
 	TurnedOn(false)
 {
- 	LightIntensity = 3000.0f;
+ 	LightIntensity = 6000.0f;
 
 	PointLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("Point Light"));
 	PointLight->Intensity = LightIntensity;
@@ -20,7 +20,7 @@ ALightButton::ALightButton() :
 	RootComponent = PointLight;
 
 	LightSphere = CreateDefaultSubobject<USphereComponent>(TEXT("Light Sphere Component"));
-	LightSphere->InitSphereRadius(300.0f);
+	LightSphere->InitSphereRadius(600.0f);
 	LightSphere->SetCollisionProfileName(TEXT("Trigger"));
 	LightSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	LightSphere->SetupAttachment(RootComponent);
@@ -62,6 +62,7 @@ void ALightButton::LightClicked(AActor* TouchedActor, FKey ButtonPressed)
 	if (CurrentStatus && CurrentStatus->IsWaitingForPlayerMove()) {
 		this->ToggleLight();
 		this->TurnedOn = !this->TurnedOn;
+		AccumulatedDeltaTime = 0.0f;
 		PrimaryActorTick.bCanEverTick = true;
 
 		this->EvaluateClick();

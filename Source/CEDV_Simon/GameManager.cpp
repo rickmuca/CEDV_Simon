@@ -150,6 +150,8 @@ void AGameManager::BeginPlay()
 		AScoreController* ScoreControllerPtr = Cast<AScoreController>(ScoreControllerRef.Get());
 		CurrentStatus->SetScoreController(ScoreControllerPtr);
 	}
+
+	CurrentStatus->LevelUp();
 }
 
 // Called every frame
@@ -164,6 +166,7 @@ void AGameManager::Tick(float DeltaTime)
 		if (AccumulatedDeltaTime >= ShowResultDelay)
 		{
 			AccumulatedDeltaTimeForResult = 0.0f;
+			AccumulatedDeltaTime = 0.0f;
 			CurrentStatus->HideResult();
 		}
 		return;
@@ -172,15 +175,16 @@ void AGameManager::Tick(float DeltaTime)
 	if (AccumulatedDeltaTime >= LightToggleDelay)
 	{
 		AccumulatedDeltaTime = 0.0f;
-		if (!Started) 
-		{
-			CurrentStatus->LevelUp();
-			Started = true;
-			return;
-		}
-
+		
 		if (CurrentStatus->IsPlayingSequence() && !CurrentStatus->IsShowingSomeResult())
 		{
+			if (!Started)
+			{
+				CurrentStatus->ShowReady();
+				Started = true;
+				return;
+			}
+
 			if (LastToggled) {
 				// Apagamos la anterior iluminada y esperamos a encender la siguiente
 				LastToggled->ToggleLight();
@@ -192,6 +196,7 @@ void AGameManager::Tick(float DeltaTime)
 				CurrentStatus->ResetCurrentSequenceIndex();
 				CurrentStatus->SetPlayingSequence(false);
 				CurrentStatus->SetWaitingForPlayerMove(true);
+				CurrentStatus->ShowGo();
 			}
 
 			if (CurrentStatus->IsPlayingSequence()) {
@@ -227,6 +232,13 @@ void AGameManager::Tick(float DeltaTime)
 				if (match) {
 					LastToggled->ToggleLight();
 					CurrentStatus->IncrementCurrentSequenceIndex();
+				}
+			}
+			else 
+			{
+				if (!CurrentStatus->IsPlayingSequence())
+				{
+					Started = false;
 				}
 			}
 		}

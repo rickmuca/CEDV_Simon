@@ -20,10 +20,9 @@ AGameManager::AGameManager() :
 	AccumulatedDeltaTime(0.0f),
 	LightToogleDelay(1.5f),
 	Level(1),
-	PlaySequence(false),
-	WaitingForPlayerMove(false),
 	CurrentScore(0)
 {
+	this->CurrentStatus = new GameStatus();
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
@@ -161,7 +160,7 @@ void AGameManager::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	AccumulatedDeltaTime += DeltaTime;
-	if (AccumulatedDeltaTime >= LightToogleDelay && PlaySequence)
+	if (AccumulatedDeltaTime >= LightToogleDelay && CurrentStatus->IsPlayingSequence())
 	{
 		AccumulatedDeltaTime = 0.0f;
 		if (LastToggled) {
@@ -172,11 +171,11 @@ void AGameManager::Tick(float DeltaTime)
 		}
 
 		if (CurrentSequenceIndex > Sequence.Num() - 1) {
-			PlaySequence = false;
-			WaitingForPlayerMove = true;
+			CurrentStatus->SetPlayingSequence(false);//PlaySequence = false;
+			CurrentStatus->SetWaitingForPlayerMove(true);//WaitingForPlayerMove = true;
 		}
 
-		if (WaitingForPlayerMove) {
+		if (CurrentStatus->IsWaitingForPlayerMove()) {
 			// Ejemplo de incrementar puntuación
 			CurrentScore = CurrentScore + 100;
 			ScoreControllerPtr->IncrementScoreBy(CurrentScore);
@@ -225,7 +224,8 @@ void AGameManager::SetUpLevel() {
 	}
 
 	CurrentSequenceIndex = 0;
-	PlaySequence = true;
+	CurrentStatus->SetWaitingForPlayerMove(false);
+	CurrentStatus->SetPlayingSequence(true);
 }
 
 void AGameManager::LevelUp() {
@@ -249,6 +249,9 @@ ALightButton* AGameManager::AssignPointLightComponentToLightButton(TWeakObjectPt
 			AActor* Plane = PlaneRef.Get();
 			LightButton->SetPLane(Plane);
 		}
+
+		LightButton->SetGameStatus(CurrentStatus);
+
 		return LightButton;
 	}
 	else 

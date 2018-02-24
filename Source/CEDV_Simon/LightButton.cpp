@@ -34,7 +34,9 @@ void ALightButton::BeginPlay()
 
 void ALightButton::ToggleLight()
 {
-	PointLight->ToggleVisibility();
+	if (PointLight) {
+		PointLight->ToggleVisibility();
+	}
 }
 
 void ALightButton::SetPLane(AActor* LightPlane) 
@@ -47,7 +49,13 @@ void ALightButton::SetPLane(AActor* LightPlane)
 
 void ALightButton::LightClicked(AActor* TouchedActor, FKey ButtonPressed)
 {
-	this->ToggleLight();
+	if (CurrentStatus && CurrentStatus->IsWaitingForPlayerMove()) {
+		this->ToggleLight();
+	}
+}
+
+void ALightButton::SetGameStatus(GameStatus* CurrentStatus) {
+	this->CurrentStatus = CurrentStatus;
 }
 
 // Called every frame
@@ -55,6 +63,5 @@ void ALightButton::LightClicked(AActor* TouchedActor, FKey ButtonPressed)
 void ALightButton::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 

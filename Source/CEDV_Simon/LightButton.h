@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "GameStatus.h"
 #include "LightButton.generated.h"
 
 UCLASS()
@@ -25,7 +26,8 @@ public:
 		float LightIntensity;
 
 private:
-	AActor * Plane;
+	AActor* Plane;
+	GameStatus* CurrentStatus;
 
 protected:
 	// Called when the game starts or when spawned
@@ -36,6 +38,7 @@ public:
 	 virtual void Tick(float DeltaTime) override;
 
 	 void SetPLane(AActor* Plane);
+	 void SetGameStatus(GameStatus* CurrentStatus);
 
 	 void ToggleLight();
 	 

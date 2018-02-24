@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "LightButton.h"
 #include "ScoreController.h"
+#include "GameStatus.h"
 #include "GameManager.generated.h"
 
 UCLASS()
@@ -24,6 +25,7 @@ public:
 	static const int32 SEQ_MULTIPLIER;
 
 private:
+	GameStatus* CurrentStatus;
 	float AccumulatedDeltaTime;
 	float LightToogleDelay;
 
@@ -39,8 +41,6 @@ private:
 
 	int32 CurrentSequenceIndex;
 	TArray<int32> Sequence;
-	bool PlaySequence;
-	bool WaitingForPlayerMove;
 	int32 CurrentScore;
 
 	TMap<FString, class ALightButton> Lights;

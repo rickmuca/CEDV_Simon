@@ -21,7 +21,10 @@ public:
 private:
 	GameStatus* CurrentStatus;
 	float AccumulatedDeltaTime;
-	float LightToogleDelay;
+	float LightToggleDelay;
+	float ShowResultDelay;
+	float AccumulatedDeltaTimeForResult;
+	bool Started;
 
 	ALightButton* LightButtonYellow;
 	ALightButton* LightButtonBlue;
@@ -29,12 +32,12 @@ private:
 	ALightButton* LightButtonGreen;
 	ALightButton* LastToggled;
 
-	TMap<FString, class ALightButton> Lights;
-
 private:
-	ALightButton* AssignPointLightComponentToLightButton(TWeakObjectPtr<AActor> LightRef,
-		                                        TWeakObjectPtr<AActor> LightButtonRef,
-												TWeakObjectPtr<AActor> PlaneRef);
+	ALightButton* SetUpLightButton(
+		TWeakObjectPtr<AActor> LightRef,
+		TWeakObjectPtr<AActor> LightButtonRef,
+		TWeakObjectPtr<AActor> PlaneRef,
+		int32 type);
 
 	bool CheckRefCast(TWeakObjectPtr<AActor> ActorRef, const UClass *ClassCast) const;
 

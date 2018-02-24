@@ -13,6 +13,7 @@ class CEDV_SIMON_API AScoreController : public AActor
 	
 private:
 	static const FString SCORE_TAG;
+
 public:	
 	// Sets default values for this actor's properties
 	AScoreController();
@@ -30,5 +31,16 @@ public:
 	TWeakObjectPtr<class UUserWidget> pScoreTextWidget;
 	TWeakObjectPtr<class UTextBlock> pScoreText;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ResultController")
+	TSubclassOf<class UUserWidget> ResultTextWidget;
+	TWeakObjectPtr<class UUserWidget> pResultTextWidget;
+	TWeakObjectPtr<class UTextBlock> pResultText;
+
 	void IncrementScoreBy(int32 points);
+	void ShowSuccess();
+	void ShowFail();
+	void ShowGo();
+	void ShowReady();
+	void HideResult();
+	bool IsShowingSomeResult();
 };

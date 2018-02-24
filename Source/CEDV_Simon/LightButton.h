@@ -31,7 +31,10 @@ private:
 
 	AActor* Plane;
 	GameStatus* CurrentStatus;
+	int32 Type;
 	bool TurnedOn;
+
+	void EvaluateClick();
 
 protected:
 	// Called when the game starts or when spawned
@@ -43,6 +46,7 @@ public:
 
 	 void SetPLane(AActor* Plane);
 	 void SetGameStatus(GameStatus* CurrentStatus);
+	 void SetType(int32 Type);
 
 	 void ToggleLight();
 	 

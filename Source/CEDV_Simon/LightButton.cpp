@@ -49,17 +49,28 @@ void ALightButton::SetPLane(AActor* LightPlane)
 	}
 }
 
+void ALightButton::SetGameStatus(GameStatus* CurrentStatus) {
+	this->CurrentStatus = CurrentStatus;
+}
+
+void ALightButton::SetType(int32 Type) {
+	this->Type = Type;
+}
+
 void ALightButton::LightClicked(AActor* TouchedActor, FKey ButtonPressed)
 {
 	if (CurrentStatus && CurrentStatus->IsWaitingForPlayerMove()) {
 		this->ToggleLight();
 		this->TurnedOn = !this->TurnedOn;
 		PrimaryActorTick.bCanEverTick = true;
+
+		this->EvaluateClick();
 	}
 }
 
-void ALightButton::SetGameStatus(GameStatus* CurrentStatus) {
-	this->CurrentStatus = CurrentStatus;
+void ALightButton::EvaluateClick() 
+{
+	CurrentStatus->Evaluate(this->Type);
 }
 
 // Called every frame

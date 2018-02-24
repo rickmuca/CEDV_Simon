@@ -16,7 +16,10 @@ const int32 GameStatus::GREEN_KEY = 3;
 // Sets default values
 AGameManager::AGameManager() :
 	AccumulatedDeltaTime(0.0f),
-	LightToogleDelay(2.0f)
+	LightToggleDelay(2.0f),
+	ShowResultDelay(3.5f),
+	AccumulatedDeltaTimeForResult(0.0f),
+	Started(false)
 {
 	this->CurrentStatus = new GameStatus();
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -138,17 +141,15 @@ void AGameManager::BeginPlay()
 		}
 	}
 
-	LightButtonYellow = AssignPointLightComponentToLightButton(YellowLightRef, YellowLightButtonRef, YellowPlaneRef);
-	LightButtonBlue = AssignPointLightComponentToLightButton(BlueLightRef, BlueLightButtonRef, BluePlaneRef);
-	LightButtonRed = AssignPointLightComponentToLightButton(RedLightRef, RedLightButtonRef, RedPlaneRef);
-	LightButtonGreen = AssignPointLightComponentToLightButton(GreenLightRef, GreenLightButtonRef, GreenPlaneRef);
+	LightButtonYellow = SetUpLightButton(YellowLightRef, YellowLightButtonRef, YellowPlaneRef, GameStatus::YELLOW_KEY);
+	LightButtonBlue = SetUpLightButton(BlueLightRef, BlueLightButtonRef, BluePlaneRef, GameStatus::BLUE_KEY);
+	LightButtonRed = SetUpLightButton(RedLightRef, RedLightButtonRef, RedPlaneRef, GameStatus::RED_KEY);
+	LightButtonGreen = SetUpLightButton(GreenLightRef, GreenLightButtonRef, GreenPlaneRef, GameStatus::GREEN_KEY);
 
 	if (CheckRefCast(ScoreControllerRef, AScoreController::StaticClass())) {
 		AScoreController* ScoreControllerPtr = Cast<AScoreController>(ScoreControllerRef.Get());
 		CurrentStatus->SetScoreController(ScoreControllerPtr);
 	}
-
-	CurrentStatus->SetUpLevel();
 }
 
 // Called every frame
@@ -157,66 +158,86 @@ void AGameManager::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	AccumulatedDeltaTime += DeltaTime;
-	if (AccumulatedDeltaTime >= LightToogleDelay && CurrentStatus->IsPlayingSequence())
+
+	if (CurrentStatus->IsShowingSomeResult()) {
+		AccumulatedDeltaTimeForResult += DeltaTime;
+		if (AccumulatedDeltaTime >= ShowResultDelay)
+		{
+			AccumulatedDeltaTimeForResult = 0.0f;
+			CurrentStatus->HideResult();
+		}
+		return;
+	}
+
+	if (AccumulatedDeltaTime >= LightToggleDelay)
 	{
 		AccumulatedDeltaTime = 0.0f;
-		if (LastToggled) {
-			// Apagamos la anterior iluminada y esperamos a encender la siguiente
-			LastToggled->ToggleLight();
-			LastToggled = NULL;
+		if (!Started) 
+		{
+			CurrentStatus->LevelUp();
+			Started = true;
 			return;
 		}
 
-		if (CurrentStatus->EndOfSequenceReached()) {
-			CurrentStatus->SetPlayingSequence(false);
-			CurrentStatus->SetWaitingForPlayerMove(true);
-		}
-
-		if (CurrentStatus->IsWaitingForPlayerMove()) {
-			// Ejemplo de incrementar puntuación
-			CurrentStatus->IncrementScoreBy(100);
-			CurrentStatus->ResetCurrentSequenceIndex();
-		}
-		else {
-			bool match = false;
-			switch (CurrentStatus->GetCurrentItemInSequence()) {
-			case GameStatus::YELLOW_KEY:
-				if (LightButtonYellow) {
-					LastToggled = LightButtonYellow;
-					match = true;
-				}
-				break;
-			case GameStatus::BLUE_KEY:
-				if (LightButtonBlue) {
-					LastToggled = LightButtonBlue;
-					match = true;
-				}
-				break;
-			case GameStatus::RED_KEY:
-				if (LightButtonRed) {
-					LastToggled = LightButtonRed;
-					match = true;
-				}
-				break;
-			case GameStatus::GREEN_KEY:
-				if (LightButtonGreen) {
-					LastToggled = LightButtonGreen;
-					match = true;
-				}
-				break;
+		if (CurrentStatus->IsPlayingSequence() && !CurrentStatus->IsShowingSomeResult())
+		{
+			if (LastToggled) {
+				// Apagamos la anterior iluminada y esperamos a encender la siguiente
+				LastToggled->ToggleLight();
+				LastToggled = NULL;
+				return;
 			}
 
-			if (match) {
-				LastToggled->ToggleLight();
-				CurrentStatus->IncrementCurrentSequenceIndex();
+			if (CurrentStatus->EndOfSequenceReached()) {
+				CurrentStatus->ResetCurrentSequenceIndex();
+				CurrentStatus->SetPlayingSequence(false);
+				CurrentStatus->SetWaitingForPlayerMove(true);
+			}
+
+			if (CurrentStatus->IsPlayingSequence()) {
+				
+				bool match = false;
+				switch (CurrentStatus->GetCurrentItemInSequence()) {
+				case GameStatus::YELLOW_KEY:
+					if (LightButtonYellow) {
+						LastToggled = LightButtonYellow;
+						match = true;
+					}
+					break;
+				case GameStatus::BLUE_KEY:
+					if (LightButtonBlue) {
+						LastToggled = LightButtonBlue;
+						match = true;
+					}
+					break;
+				case GameStatus::RED_KEY:
+					if (LightButtonRed) {
+						LastToggled = LightButtonRed;
+						match = true;
+					}
+					break;
+				case GameStatus::GREEN_KEY:
+					if (LightButtonGreen) {
+						LastToggled = LightButtonGreen;
+						match = true;
+					}
+					break;
+				}
+
+				if (match) {
+					LastToggled->ToggleLight();
+					CurrentStatus->IncrementCurrentSequenceIndex();
+				}
 			}
 		}
 	}
 }
 
-ALightButton* AGameManager::AssignPointLightComponentToLightButton(TWeakObjectPtr<AActor> LightRef,
-	                                        TWeakObjectPtr<AActor> LightButtonRef,
-											TWeakObjectPtr<AActor> PlaneRef) {
+ALightButton* AGameManager::SetUpLightButton(
+	TWeakObjectPtr<AActor> LightRef,
+	TWeakObjectPtr<AActor> LightButtonRef,
+	TWeakObjectPtr<AActor> PlaneRef,
+	int32 Type) {
 
 	if (CheckRefCast(LightRef, APointLight::StaticClass()) &&
 		CheckRefCast(LightButtonRef, ALightButton::StaticClass()))
@@ -232,6 +253,7 @@ ALightButton* AGameManager::AssignPointLightComponentToLightButton(TWeakObjectPt
 		}
 
 		LightButton->SetGameStatus(CurrentStatus);
+		LightButton->SetType(Type);
 
 		return LightButton;
 	}

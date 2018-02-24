@@ -6,8 +6,8 @@ const int32 GameStatus::SEQ_MULTIPLIER = 4;
 
 GameStatus::GameStatus() :
 	WaitingForPlayerMove(false),
-	PlaySequence(true),
-	Level(1),
+	PlaySequence(false),
+	Level(0),
 	CurrentScore(0),
 	CurrentSequenceIndex(0)
 {
@@ -31,11 +31,17 @@ bool GameStatus::IsPlayingSequence()
 void GameStatus::SetWaitingForPlayerMove(bool value)
 {
 	this->WaitingForPlayerMove = value;
+	if (this->WaitingForPlayerMove) {
+		this->ShowGo();
+	}
 }
 
 void GameStatus::SetPlayingSequence(bool value)
 {
 	this->PlaySequence = value;
+	if (this->PlaySequence) {
+		this->ShowReady();
+	}
 }
 
 void GameStatus::SetScoreController(AScoreController* ScoreControllerPtr) 
@@ -91,4 +97,74 @@ void GameStatus::ResetCurrentSequenceIndex()
 void GameStatus::IncrementCurrentSequenceIndex() 
 {
 	CurrentSequenceIndex++;
+}
+
+void GameStatus::ShowSuccess()
+{
+	if (ScoreControllerPtr) {
+		ScoreControllerPtr->ShowSuccess();
+	}
+}
+
+void GameStatus::ShowWrong() 
+{
+	if (ScoreControllerPtr) {
+		ScoreControllerPtr->ShowFail();
+	}
+}
+
+void GameStatus::ShowGo()
+{
+	if (ScoreControllerPtr) {
+		ScoreControllerPtr->ShowGo();
+	}
+}
+
+void GameStatus::ShowReady()
+{
+	if (ScoreControllerPtr) {
+		ScoreControllerPtr->ShowReady();
+	}
+}
+
+void GameStatus::HideResult()
+{
+	if (ScoreControllerPtr) {
+		ScoreControllerPtr->HideResult();
+	}
+}
+
+bool GameStatus::IsShowingSomeResult() {
+	if (ScoreControllerPtr) {
+		return ScoreControllerPtr->IsShowingSomeResult();
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void GameStatus::Evaluate(int32 Type) 
+{
+	int32 Item = this->GetCurrentItemInSequence();
+
+	if (Item == Type)
+	{
+		this->IncrementScoreBy(100);
+		this->IncrementCurrentSequenceIndex();
+	}
+	else
+	{
+		this->ShowWrong();
+		//Close Level aka Open MainMenu
+	}
+
+	if (this->EndOfSequenceReached()) {
+		this->ShowSuccess();
+		this->ResetCurrentSequenceIndex();
+		this->LevelUp();
+
+		this->SetWaitingForPlayerMove(false);
+		this->SetPlayingSequence(true);
+	}
 }

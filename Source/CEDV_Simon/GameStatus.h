@@ -29,7 +29,6 @@ public:
 
 	void SetScoreController(AScoreController* ScoreControllerPtr);
 
-	void SetUpLevel();
 	void LevelUp();
 	bool EndOfSequenceReached();
 	int32 GetScore();
@@ -37,6 +36,13 @@ public:
 	int32 GetCurrentItemInSequence();
 	void ResetCurrentSequenceIndex();
 	void IncrementCurrentSequenceIndex();
+	void ShowSuccess();
+	void ShowWrong();
+	void ShowGo();
+	void ShowReady();
+	void HideResult();
+	bool IsShowingSomeResult();
+	void Evaluate(int32 Type);
 
 private:
 	bool WaitingForPlayerMove;
@@ -49,4 +55,6 @@ private:
 
 	int32 CurrentScore;
 	AScoreController* ScoreControllerPtr;
+
+	void SetUpLevel();
 };

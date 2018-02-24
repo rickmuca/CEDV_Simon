@@ -6,13 +6,20 @@
 #include "EngineUtils.h"
 #include "LightButton.h"
 #include "Runtime/Engine/Classes/Engine/PointLight.h"
+#include "Runtime/Core/Public/Math/UnrealMathUtility.h"
 
-const FString AGameManager::YELLOW_KEY = "Yellow";
+const int32 AGameManager::YELLOW_KEY = 0;
+const int32 AGameManager::BLUE_KEY = 1;
+const int32 AGameManager::RED_KEY = 2;
+const int32 AGameManager::GREEN_KEY = 3;
 
 // Sets default values
 AGameManager::AGameManager() :
 	AccumulatedDeltaTime(0.0f),
-	LightToogleDelay(1.0f)
+	LightToogleDelay(1.5f),
+	Level(1),
+	PlaySequence(false),
+	WaitingForPlayerMove(false)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -98,17 +105,7 @@ void AGameManager::BeginPlay()
 	LightButtonRed = AssignPointLightComponentToLightButton(RedLightRef, RedLightButtonRef);
 	LightButtonGreen = AssignPointLightComponentToLightButton(GreenLightRef, GreenLightButtonRef);
 
-	/*if (CheckRefCast(YellowLightRef, APointLight::StaticClass()) &&
-		CheckRefCast(YellowLightButtonRef, ALightButton::StaticClass())) 
-	{
-		APointLight* PointLightComponentPtr =
-			Cast<APointLight>(YellowLightRef.Get());
-
-		LightButtonYellow = Cast<ALightButton>(YellowLightButtonRef.Get());
-		LightButtonYellow->PointLight = PointLightComponentPtr->PointLightComponent;
-
-		//Lights.Emplace(YELLOW_KEY, LightButtonComponentPtr);
-	}*/
+	this->SetUpLevel();
 }
 
 // Called every frame
@@ -117,25 +114,61 @@ void AGameManager::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	AccumulatedDeltaTime += DeltaTime;
-	if (AccumulatedDeltaTime >= LightToogleDelay)
+	if (AccumulatedDeltaTime >= LightToogleDelay && PlaySequence)
 	{
-		if (LightButtonYellow) {
-			LightButtonYellow->ToggleLight();
-		}
-
-		if (LightButtonBlue) {
-			LightButtonBlue->ToggleLight();
-		}
-
-		if (LightButtonRed) {
-			LightButtonRed->ToggleLight();
-		}
-
-		if (LightButtonGreen) {
-			LightButtonGreen->ToggleLight();
-		}
 		AccumulatedDeltaTime = 0.0f;
+		if (LastToggled) {
+			LastToggled->ToggleLight();
+			LastToggled = NULL;
+		}
+
+		if (CurrentSequenceIndex > Sequence.Num() - 1) {
+			PlaySequence = false;
+			WaitingForPlayerMove = true;
+			return;
+		}
+
+		switch (Sequence[CurrentSequenceIndex]) {
+		case AGameManager::YELLOW_KEY:
+			if (LightButtonYellow) {
+				LightButtonYellow->ToggleLight();
+				CurrentSequenceIndex++;
+				LastToggled = LightButtonYellow;
+			}
+			break;
+		case AGameManager::BLUE_KEY:
+			if (LightButtonBlue) {
+				LightButtonBlue->ToggleLight();
+				CurrentSequenceIndex++;
+				LastToggled = LightButtonBlue;
+			}
+			break;
+		case AGameManager::RED_KEY:
+			if (LightButtonRed) {
+				LightButtonRed->ToggleLight();
+				CurrentSequenceIndex++;
+				LastToggled = LightButtonRed;
+			}
+			break;
+		case AGameManager::GREEN_KEY:
+			if (LightButtonGreen) {
+				LightButtonGreen->ToggleLight();
+				CurrentSequenceIndex++;
+				LastToggled = LightButtonGreen;
+			}
+			break;
+		}
 	}
+}
+
+void AGameManager::SetUpLevel() {
+	Sequence.Empty();
+	for (int i = 0; i < Level * 8; i++) {
+		Sequence.Emplace(FMath::RandRange(0, 3));
+	}
+
+	CurrentSequenceIndex = 0;
+	PlaySequence = true;
 }
 
 ALightButton* AGameManager::AssignPointLightComponentToLightButton(TWeakObjectPtr<AActor> LightRef,

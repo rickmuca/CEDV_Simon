@@ -16,15 +16,12 @@ public:
 	// Sets default values for this actor's properties
 	AGameManager();
 
-	static const FString YELLOW_KEY;
+	static const int32 YELLOW_KEY;
+	static const int32 BLUE_KEY;
+	static const int32 RED_KEY;
+	static const int32 GREEN_KEY;
 
 private:
-	TMap<FString, class ALightButton> Lights;
-	ALightButton* AssignPointLightComponentToLightButton(TWeakObjectPtr<AActor> LightRef,
-		                                        TWeakObjectPtr<AActor> LightButtonRef);
-
-	bool CheckRefCast(TWeakObjectPtr<AActor> ActorRef, const UClass *ClassCast) const;
-
 	float AccumulatedDeltaTime;
 	float LightToogleDelay;
 
@@ -32,6 +29,24 @@ private:
 	ALightButton* LightButtonBlue;
 	ALightButton* LightButtonRed;
 	ALightButton* LightButtonGreen;
+
+	ALightButton* LastToggled;
+
+	int32 Level;
+
+	int32 CurrentSequenceIndex;
+	TArray<int32> Sequence;
+	bool PlaySequence;
+	bool WaitingForPlayerMove;
+
+	TMap<FString, class ALightButton> Lights;
+	
+	void SetUpLevel();
+
+	ALightButton* AssignPointLightComponentToLightButton(TWeakObjectPtr<AActor> LightRef,
+		                                        TWeakObjectPtr<AActor> LightButtonRef);
+
+	bool CheckRefCast(TWeakObjectPtr<AActor> ActorRef, const UClass *ClassCast) const;
 
 protected:
 	// Called when the game starts or when spawned

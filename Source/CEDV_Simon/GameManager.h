@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "LightButton.h"
+#include "ScoreController.h"
 #include "GameManager.generated.h"
 
 UCLASS()
@@ -29,8 +30,9 @@ private:
 	ALightButton* LightButtonBlue;
 	ALightButton* LightButtonRed;
 	ALightButton* LightButtonGreen;
-
 	ALightButton* LastToggled;
+
+	AScoreController* ScoreControllerPtr;
 
 	int32 Level;
 
@@ -38,10 +40,13 @@ private:
 	TArray<int32> Sequence;
 	bool PlaySequence;
 	bool WaitingForPlayerMove;
+	int32 CurrentScore;
 
 	TMap<FString, class ALightButton> Lights;
-	
+
+private:
 	void SetUpLevel();
+	void LevelUp();
 
 	ALightButton* AssignPointLightComponentToLightButton(TWeakObjectPtr<AActor> LightRef,
 		                                        TWeakObjectPtr<AActor> LightButtonRef);

@@ -19,7 +19,8 @@ AGameManager::AGameManager() :
 	LightToogleDelay(1.5f),
 	Level(1),
 	PlaySequence(false),
-	WaitingForPlayerMove(false)
+	WaitingForPlayerMove(false),
+	CurrentScore(0)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -49,6 +50,9 @@ void AGameManager::BeginPlay()
 	FString GreenLightCtl = FString(TEXT("Greenlight"));
 	TWeakObjectPtr<AActor> GreenLightButtonRef;
 	FString GreenButtonCtl = FString(TEXT("LightButtonGreen"));
+
+	FString ScoreCtl = FString(TEXT("ScoreController_1"));
+	TWeakObjectPtr<AActor> ScoreControllerRef;
 	
 	bool allFound = false;
 	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr && !allFound; ++ActorItr)
@@ -85,6 +89,10 @@ void AGameManager::BeginPlay()
 		{
 			GreenLightButtonRef = *ActorItr;
 		}
+		else if (ScoreCtl.Equals(ActorItr->GetName()))
+		{
+			ScoreControllerRef = *ActorItr;
+		}
 
 		if (YellowLightRef.IsValid() 
 			&& YellowLightButtonRef.IsValid()
@@ -94,7 +102,8 @@ void AGameManager::BeginPlay()
 			&& RedLightButtonRef.IsValid()
 			&& RedLightRef.IsValid()
 			&& GreenLightButtonRef.IsValid()
-			&& GreenLightRef.IsValid())
+			&& GreenLightRef.IsValid()
+			&& ScoreControllerRef.IsValid())
 		{
 			allFound = true;
 		}
@@ -104,6 +113,10 @@ void AGameManager::BeginPlay()
 	LightButtonBlue = AssignPointLightComponentToLightButton(BlueLightRef, BlueLightButtonRef);
 	LightButtonRed = AssignPointLightComponentToLightButton(RedLightRef, RedLightButtonRef);
 	LightButtonGreen = AssignPointLightComponentToLightButton(GreenLightRef, GreenLightButtonRef);
+
+	if (CheckRefCast(ScoreControllerRef, AScoreController::StaticClass())) {
+		ScoreControllerPtr = Cast<AScoreController>(ScoreControllerRef.Get());
+	}
 
 	this->SetUpLevel();
 }
@@ -118,45 +131,55 @@ void AGameManager::Tick(float DeltaTime)
 	{
 		AccumulatedDeltaTime = 0.0f;
 		if (LastToggled) {
+			// Apagamos la anterior iluminada y esperamos a encender la siguiente
 			LastToggled->ToggleLight();
 			LastToggled = NULL;
+			return;
 		}
 
 		if (CurrentSequenceIndex > Sequence.Num() - 1) {
 			PlaySequence = false;
 			WaitingForPlayerMove = true;
-			return;
 		}
 
-		switch (Sequence[CurrentSequenceIndex]) {
-		case AGameManager::YELLOW_KEY:
-			if (LightButtonYellow) {
-				LightButtonYellow->ToggleLight();
-				CurrentSequenceIndex++;
-				LastToggled = LightButtonYellow;
+		if (WaitingForPlayerMove) {
+			// Ejemplo de incrementar puntuación
+			CurrentScore = CurrentScore + 100;
+			ScoreControllerPtr->IncrementScoreBy(CurrentScore);
+		}
+		else {
+			bool match = false;
+			switch (Sequence[CurrentSequenceIndex]) {
+			case AGameManager::YELLOW_KEY:
+				if (LightButtonYellow) {
+					LastToggled = LightButtonYellow;
+					match = true;
+				}
+				break;
+			case AGameManager::BLUE_KEY:
+				if (LightButtonBlue) {
+					LastToggled = LightButtonBlue;
+					match = true;
+				}
+				break;
+			case AGameManager::RED_KEY:
+				if (LightButtonRed) {
+					LastToggled = LightButtonRed;
+					match = true;
+				}
+				break;
+			case AGameManager::GREEN_KEY:
+				if (LightButtonGreen) {
+					LastToggled = LightButtonGreen;
+					match = true;
+				}
+				break;
 			}
-			break;
-		case AGameManager::BLUE_KEY:
-			if (LightButtonBlue) {
-				LightButtonBlue->ToggleLight();
+
+			if (match) {
+				LastToggled->ToggleLight();
 				CurrentSequenceIndex++;
-				LastToggled = LightButtonBlue;
 			}
-			break;
-		case AGameManager::RED_KEY:
-			if (LightButtonRed) {
-				LightButtonRed->ToggleLight();
-				CurrentSequenceIndex++;
-				LastToggled = LightButtonRed;
-			}
-			break;
-		case AGameManager::GREEN_KEY:
-			if (LightButtonGreen) {
-				LightButtonGreen->ToggleLight();
-				CurrentSequenceIndex++;
-				LastToggled = LightButtonGreen;
-			}
-			break;
 		}
 	}
 }
@@ -169,6 +192,11 @@ void AGameManager::SetUpLevel() {
 
 	CurrentSequenceIndex = 0;
 	PlaySequence = true;
+}
+
+void AGameManager::LevelUp() {
+	Level++;
+	SetUpLevel();
 }
 
 ALightButton* AGameManager::AssignPointLightComponentToLightButton(TWeakObjectPtr<AActor> LightRef,

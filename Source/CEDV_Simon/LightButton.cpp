@@ -4,12 +4,14 @@
 #include "Components/PointLightComponent.h"
 #include "Components/SphereComponent.h"
 
+
 // Sets default values
-ALightButton::ALightButton()
+ALightButton::ALightButton() :
+	AccumulatedDeltaTime(0.0f),
+	LightTurnedOnDelay(2.0f),
+	TurnedOn(false)
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-	LightIntensity = 3000.0f;
+ 	LightIntensity = 3000.0f;
 
 	PointLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("Point Light"));
 	PointLight->Intensity = LightIntensity;
@@ -29,7 +31,7 @@ void ALightButton::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 }
 
 void ALightButton::ToggleLight()
@@ -51,6 +53,8 @@ void ALightButton::LightClicked(AActor* TouchedActor, FKey ButtonPressed)
 {
 	if (CurrentStatus && CurrentStatus->IsWaitingForPlayerMove()) {
 		this->ToggleLight();
+		this->TurnedOn = !this->TurnedOn;
+		PrimaryActorTick.bCanEverTick = true;
 	}
 }
 
@@ -59,9 +63,20 @@ void ALightButton::SetGameStatus(GameStatus* CurrentStatus) {
 }
 
 // Called every frame
-
 void ALightButton::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	AccumulatedDeltaTime += DeltaTime;
+
+	if (AccumulatedDeltaTime >= LightTurnedOnDelay)
+	{
+		AccumulatedDeltaTime = 0.0f;
+		PrimaryActorTick.bCanEverTick = false;
+		if (this->TurnedOn) {
+			this->ToggleLight();
+			this->TurnedOn = false;
+		}
+	}
 }
 

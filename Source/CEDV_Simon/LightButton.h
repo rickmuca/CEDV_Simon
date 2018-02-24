@@ -26,8 +26,12 @@ public:
 		float LightIntensity;
 
 private:
+	float AccumulatedDeltaTime;
+	float LightTurnedOnDelay;
+
 	AActor* Plane;
 	GameStatus* CurrentStatus;
+	bool TurnedOn;
 
 protected:
 	// Called when the game starts or when spawned

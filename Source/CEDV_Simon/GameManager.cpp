@@ -16,7 +16,7 @@ const int32 GameStatus::GREEN_KEY = 3;
 // Sets default values
 AGameManager::AGameManager() :
 	AccumulatedDeltaTime(0.0f),
-	LightToogleDelay(1.5f)
+	LightToogleDelay(2.0f)
 {
 	this->CurrentStatus = new GameStatus();
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -168,8 +168,8 @@ void AGameManager::Tick(float DeltaTime)
 		}
 
 		if (CurrentStatus->EndOfSequenceReached()) {
-			CurrentStatus->SetPlayingSequence(false);//PlaySequence = false;
-			CurrentStatus->SetWaitingForPlayerMove(true);//WaitingForPlayerMove = true;
+			CurrentStatus->SetPlayingSequence(false);
+			CurrentStatus->SetWaitingForPlayerMove(true);
 		}
 
 		if (CurrentStatus->IsWaitingForPlayerMove()) {

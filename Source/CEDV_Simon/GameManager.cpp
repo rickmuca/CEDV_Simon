@@ -13,6 +13,8 @@ const int32 AGameManager::BLUE_KEY = 1;
 const int32 AGameManager::RED_KEY = 2;
 const int32 AGameManager::GREEN_KEY = 3;
 
+const int32 AGameManager::SEQ_MULTIPLIER = 4;
+
 // Sets default values
 AGameManager::AGameManager() :
 	AccumulatedDeltaTime(0.0f),
@@ -53,6 +55,18 @@ void AGameManager::BeginPlay()
 
 	FString ScoreCtl = FString(TEXT("ScoreController_1"));
 	TWeakObjectPtr<AActor> ScoreControllerRef;
+
+	FString YellowPlaneCtl = FString(TEXT("YellowPlane"));
+	TWeakObjectPtr<AActor> YellowPlaneRef;
+
+	FString BluePlaneCtl = FString(TEXT("BluePlane"));
+	TWeakObjectPtr<AActor> BluePlaneRef;
+
+	FString RedPlaneCtl = FString(TEXT("RedPlane"));
+	TWeakObjectPtr<AActor> RedPlaneRef;
+
+	FString GreenPlaneCtl = FString(TEXT("GreenPlane"));
+	TWeakObjectPtr<AActor> GreenPlaneRef;
 	
 	bool allFound = false;
 	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr && !allFound; ++ActorItr)
@@ -93,6 +107,22 @@ void AGameManager::BeginPlay()
 		{
 			ScoreControllerRef = *ActorItr;
 		}
+		else if (YellowPlaneCtl.Equals(ActorItr->GetName()))
+		{
+			YellowPlaneRef = *ActorItr;
+		}
+		else if (BluePlaneCtl.Equals(ActorItr->GetName()))
+		{
+			BluePlaneRef = *ActorItr;
+		}
+		else if (RedPlaneCtl.Equals(ActorItr->GetName()))
+		{
+			RedPlaneRef = *ActorItr;
+		}
+		else if (GreenPlaneCtl.Equals(ActorItr->GetName()))
+		{
+			GreenPlaneRef = *ActorItr;
+		}
 
 		if (YellowLightRef.IsValid() 
 			&& YellowLightButtonRef.IsValid()
@@ -103,16 +133,20 @@ void AGameManager::BeginPlay()
 			&& RedLightRef.IsValid()
 			&& GreenLightButtonRef.IsValid()
 			&& GreenLightRef.IsValid()
-			&& ScoreControllerRef.IsValid())
+			&& ScoreControllerRef.IsValid()
+			&& YellowPlaneRef.IsValid()
+			&& BluePlaneRef.IsValid()
+			&& RedPlaneRef.IsValid()
+			&& GreenPlaneRef.IsValid())
 		{
 			allFound = true;
 		}
 	}
 
-	LightButtonYellow = AssignPointLightComponentToLightButton(YellowLightRef, YellowLightButtonRef);
-	LightButtonBlue = AssignPointLightComponentToLightButton(BlueLightRef, BlueLightButtonRef);
-	LightButtonRed = AssignPointLightComponentToLightButton(RedLightRef, RedLightButtonRef);
-	LightButtonGreen = AssignPointLightComponentToLightButton(GreenLightRef, GreenLightButtonRef);
+	LightButtonYellow = AssignPointLightComponentToLightButton(YellowLightRef, YellowLightButtonRef, YellowPlaneRef);
+	LightButtonBlue = AssignPointLightComponentToLightButton(BlueLightRef, BlueLightButtonRef, BluePlaneRef);
+	LightButtonRed = AssignPointLightComponentToLightButton(RedLightRef, RedLightButtonRef, RedPlaneRef);
+	LightButtonGreen = AssignPointLightComponentToLightButton(GreenLightRef, GreenLightButtonRef, GreenPlaneRef);
 
 	if (CheckRefCast(ScoreControllerRef, AScoreController::StaticClass())) {
 		ScoreControllerPtr = Cast<AScoreController>(ScoreControllerRef.Get());
@@ -186,7 +220,7 @@ void AGameManager::Tick(float DeltaTime)
 
 void AGameManager::SetUpLevel() {
 	Sequence.Empty();
-	for (int i = 0; i < Level * 8; i++) {
+	for (int i = 0; i < Level * AGameManager::SEQ_MULTIPLIER; i++) {
 		Sequence.Emplace(FMath::RandRange(0, 3));
 	}
 
@@ -196,11 +230,12 @@ void AGameManager::SetUpLevel() {
 
 void AGameManager::LevelUp() {
 	Level++;
-	SetUpLevel();
+	this->SetUpLevel();
 }
 
 ALightButton* AGameManager::AssignPointLightComponentToLightButton(TWeakObjectPtr<AActor> LightRef,
-	                                        TWeakObjectPtr<AActor> LightButtonRef) {
+	                                        TWeakObjectPtr<AActor> LightButtonRef,
+											TWeakObjectPtr<AActor> PlaneRef) {
 
 	if (CheckRefCast(LightRef, APointLight::StaticClass()) &&
 		CheckRefCast(LightButtonRef, ALightButton::StaticClass()))
@@ -209,6 +244,11 @@ ALightButton* AGameManager::AssignPointLightComponentToLightButton(TWeakObjectPt
 
 		ALightButton* LightButton = Cast<ALightButton>(LightButtonRef.Get());
 		LightButton->PointLight = PointLightComponentPtr->PointLightComponent;
+
+		if (PlaneRef.IsValid()) {
+			AActor* Plane = PlaneRef.Get();
+			LightButton->SetPLane(Plane);
+		}
 		return LightButton;
 	}
 	else 

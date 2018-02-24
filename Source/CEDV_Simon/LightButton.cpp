@@ -14,7 +14,9 @@ ALightButton::ALightButton()
 	PointLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("Point Light"));
 	PointLight->Intensity = LightIntensity;
 	PointLight->bVisible = true;
+	
 	RootComponent = PointLight;
+
 	LightSphere = CreateDefaultSubobject<USphereComponent>(TEXT("Light Sphere Component"));
 	LightSphere->InitSphereRadius(300.0f);
 	LightSphere->SetCollisionProfileName(TEXT("Trigger"));
@@ -26,12 +28,26 @@ ALightButton::ALightButton()
 void ALightButton::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 void ALightButton::ToggleLight()
 {
 	PointLight->ToggleVisibility();
+}
+
+void ALightButton::SetPLane(AActor* LightPlane) 
+{
+	Plane = LightPlane;
+	if (Plane) {
+		Plane->OnClicked.AddDynamic(this, &ALightButton::LightClicked);
+	}
+}
+
+void ALightButton::LightClicked(AActor* TouchedActor, FKey ButtonPressed)
+{
+	this->ToggleLight();
 }
 
 // Called every frame

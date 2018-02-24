@@ -21,6 +21,7 @@ public:
 	static const int32 BLUE_KEY;
 	static const int32 RED_KEY;
 	static const int32 GREEN_KEY;
+	static const int32 SEQ_MULTIPLIER;
 
 private:
 	float AccumulatedDeltaTime;
@@ -49,7 +50,8 @@ private:
 	void LevelUp();
 
 	ALightButton* AssignPointLightComponentToLightButton(TWeakObjectPtr<AActor> LightRef,
-		                                        TWeakObjectPtr<AActor> LightButtonRef);
+		                                        TWeakObjectPtr<AActor> LightButtonRef,
+												TWeakObjectPtr<AActor> PlaneRef);
 
 	bool CheckRefCast(TWeakObjectPtr<AActor> ActorRef, const UClass *ClassCast) const;
 

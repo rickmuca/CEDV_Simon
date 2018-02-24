@@ -15,16 +15,6 @@ public:
 	// Sets default values for this actor's properties
 	ALightButton();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	 virtual void Tick(float DeltaTime) override;
-
-	 void ToggleLight();
-
 	UPROPERTY(VisibleAnywhere, Category = "Component")
 		class UPointLightComponent* PointLight;
 
@@ -34,4 +24,21 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "LightIntensity")
 		float LightIntensity;
 
+private:
+	AActor * Plane;
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+public:	
+	// Called every frame
+	 virtual void Tick(float DeltaTime) override;
+
+	 void SetPLane(AActor* Plane);
+
+	 void ToggleLight();
+	 
+	 UFUNCTION()
+	 void LightClicked(AActor* TouchedActor, FKey ButtonPressed);
 };

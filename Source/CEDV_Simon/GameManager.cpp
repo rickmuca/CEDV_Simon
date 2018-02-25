@@ -173,8 +173,7 @@ void AGameManager::Tick(float DeltaTime)
 		
 		if (CurrentStatus->IsPlayingSequence() && !CurrentStatus->IsShowingSomeResult())
 		{
-			if (!Started)
-			{
+			if (!Started) {
 				CurrentStatus->ShowReady();
 				Started = true;
 				return;
@@ -189,32 +188,30 @@ void AGameManager::Tick(float DeltaTime)
 
 			if (CurrentStatus->IsPlayingSequence()) {
 				
-				bool match = false;
+				bool match = true;
 				switch (CurrentStatus->GetCurrentItemInSequence()) {
 				case GameStatus::YELLOW_KEY:
 					if (LightButtonYellow) {
 						LastToggled = LightButtonYellow;
-						match = true;
 					}
 					break;
 				case GameStatus::BLUE_KEY:
 					if (LightButtonBlue) {
 						LastToggled = LightButtonBlue;
-						match = true;
 					}
 					break;
 				case GameStatus::RED_KEY:
 					if (LightButtonRed) {
 						LastToggled = LightButtonRed;
-						match = true;
 					}
 					break;
 				case GameStatus::GREEN_KEY:
 					if (LightButtonGreen) {
 						LastToggled = LightButtonGreen;
-						match = true;
 					}
 					break;
+				default:
+					match = false;
 				}
 
 				if (match) {

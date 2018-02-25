@@ -180,13 +180,6 @@ void AGameManager::Tick(float DeltaTime)
 				return;
 			}
 
-			//if (LastToggled) {
-				// Apagamos la anterior iluminada y esperamos a encender la siguiente
-			//	LastToggled->ToggleLight();
-			//	LastToggled = NULL;
-			//	return;
-			//}
-
 			if (CurrentStatus->EndOfSequenceReached()) {
 				CurrentStatus->ResetCurrentSequenceIndex();
 				CurrentStatus->SetPlayingSequence(false);

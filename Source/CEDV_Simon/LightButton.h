@@ -31,9 +31,6 @@ public:
 		USoundCue* AudioCue;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Audio")
-		USoundCue* StartupCue;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Audio")
 		UAudioComponent* AudioComponent;
 
 private:
@@ -46,7 +43,8 @@ private:
 	bool TurnedOn;
 
 	void EvaluateClick();
-	void SetUpAudioComponent();
+	void SetUpAudioComponent(int32 LightButtonType);
+	void PlaySound();
 
 protected:
 	UPROPERTY()

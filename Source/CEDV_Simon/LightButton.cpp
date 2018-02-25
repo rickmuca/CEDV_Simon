@@ -62,8 +62,6 @@ void ALightButton::BeginPlay()
 void ALightButton::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
-	this->SetUpAudioComponent();
 }
 
 void ALightButton::ToggleLight()
@@ -72,9 +70,7 @@ void ALightButton::ToggleLight()
 		PointLight->ToggleVisibility();
 		if (!TurnedOn) {
 			// Play CUE
-			if (AudioComponent) {
-				AudioComponent->Play();
-			}
+			this->PlaySound();
 		}
 		this->TurnedOn = !this->TurnedOn;
 		AccumulatedDeltaTime = 0.0f;
@@ -97,8 +93,12 @@ void ALightButton::SetGameStatus(GameStatus* CurrentStatus) {
 void ALightButton::SetType(int32 Type) {
 	this->Type = Type;
 
+	this->SetUpAudioComponent(this->Type);
+}
+
+void ALightButton::SetUpAudioComponent(int32 LightButtonType) {
 	// Store a reference to the Cue asset - we'll need it later.
-	switch (this->Type) {
+	switch (LightButtonType) {
 	case GameStatus::YELLOW_KEY:
 		AudioCue = YellowCue.Get();
 		break;
@@ -112,28 +112,18 @@ void ALightButton::SetType(int32 Type) {
 		AudioCue = GreenCue.Get();
 		break;
 	}
-	
-	// I don't want the sound playing the moment it's created.
-	AudioComponent->bAutoActivate = false; // don't play the sound immediately.
-										  
-	// I want the sound to follow the pawn around, so I attach it to the Pawns root.
-	//AudioComponent->SetupAttachment(GetRootComponent());
-	
-	// I want the sound to come from slighty in front of the pawn.
-	AudioComponent->SetRelativeLocation(FVector(100.0f, 0.0f, 0.0f));
 
-	this->SetUpAudioComponent();
-}
-
-void ALightButton::SetUpAudioComponent() {
 	if (AudioCue && AudioCue->IsValidLowLevelFast()) {
 		AudioComponent->SetSound(AudioCue);
 
-		// You can fade the sound in... 
-		float startTime = 9.f;
-		float volume = 1.0f;
-		float fadeTime = 1.0f;
-		AudioComponent->FadeIn(fadeTime, volume, startTime);
+		// I don't want the sound playing the moment it's created.
+		AudioComponent->bAutoActivate = false; // don't play the sound immediately.
+
+		// I want the sound to follow the pawn around, so I attach it to the Pawns root.
+		//AudioComponent->SetupAttachment(GetRootComponent());
+
+		// I want the sound to come from slighty in front of the pawn.
+		AudioComponent->SetRelativeLocation(FVector(100.0f, 0.0f, 0.0f));
 	}
 }
 
@@ -142,6 +132,16 @@ void ALightButton::LightClicked(AActor* TouchedActor, FKey ButtonPressed)
 	if (CurrentStatus && CurrentStatus->IsWaitingForPlayerMove()) {
 		this->ToggleLight();
 		this->EvaluateClick();
+	}
+}
+
+void ALightButton::PlaySound()
+{
+	if (AudioComponent)
+	{
+		// You can fade the sound in...
+		// ->FadeIn(fadeTime, volume, startTime);
+		AudioComponent->Play();
 	}
 }
 

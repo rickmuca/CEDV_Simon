@@ -9,6 +9,7 @@ GameStatus::GameStatus() :
 	CurrentScore(0),
 	CurrentSequenceIndex(0)
 {
+	Sequence.Empty();
 }
 
 GameStatus::~GameStatus()
@@ -43,8 +44,16 @@ void GameStatus::SetScoreController(AScoreController* ScoreControllerPtr)
 
 void GameStatus::SetUpLevel() 
 {
-	Sequence.Empty();
+	/*Sequence.Empty();
 	for (int i = 0; i < Level + 1; i++) {
+		Sequence.Emplace(FMath::RandRange(0, 3));
+	}*/
+
+	if (Sequence.Num() == 0) {
+		Sequence.Emplace(FMath::RandRange(0, 3));
+		Sequence.Emplace(FMath::RandRange(0, 3));
+	}
+	else {
 		Sequence.Emplace(FMath::RandRange(0, 3));
 	}
 

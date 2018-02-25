@@ -41,6 +41,7 @@ public:
 	void HideResult();
 	bool IsShowingSomeResult();
 	void Evaluate(int32 Type);
+	void SaveGame();
 
 private:
 	bool WaitingForPlayerMove;
@@ -53,6 +54,8 @@ private:
 
 	int32 CurrentScore;
 	AScoreController* ScoreControllerPtr;
+
+	FString PlayerName;
 
 	void SetUpLevel();
 };

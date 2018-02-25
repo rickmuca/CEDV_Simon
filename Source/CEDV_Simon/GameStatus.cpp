@@ -1,13 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GameStatus.h"
+#include "MySaveGame.h"
+#include "Kismet/GameplayStatics.h"
 
 GameStatus::GameStatus() :
 	WaitingForPlayerMove(false),
 	PlaySequence(false),
 	Level(0),
 	CurrentScore(0),
-	CurrentSequenceIndex(0)
+	CurrentSequenceIndex(0),
+	PlayerName("Chuster")
 {
 	Sequence.Empty();
 }
@@ -157,6 +160,7 @@ void GameStatus::Evaluate(int32 Type)
 	else
 	{
 		this->ShowWrong();
+		this->SaveGame();
 		//Close Level aka Open MainMenu
 	}
 
@@ -168,4 +172,10 @@ void GameStatus::Evaluate(int32 Type)
 		this->SetWaitingForPlayerMove(false);
 		this->SetPlayingSequence(true);
 	}
+}
+
+void GameStatus::SaveGame()
+{	
+	UMySaveGame::SaveMaxScore(PlayerName, CurrentScore);
+	UMySaveGame::PrintRanking();
 }

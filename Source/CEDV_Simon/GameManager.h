@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "LightButton.h"
 #include "ScoreController.h"
+#include "GameStatus.h"
 #include "GameManager.generated.h"
 
 UCLASS()
@@ -17,14 +18,13 @@ public:
 	// Sets default values for this actor's properties
 	AGameManager();
 
-	static const int32 YELLOW_KEY;
-	static const int32 BLUE_KEY;
-	static const int32 RED_KEY;
-	static const int32 GREEN_KEY;
-
 private:
+	GameStatus* CurrentStatus;
 	float AccumulatedDeltaTime;
-	float LightToogleDelay;
+	float LightToggleDelay;
+	float ShowResultDelay;
+	float AccumulatedDeltaTimeForResult;
+	bool Started;
 
 	ALightButton* LightButtonYellow;
 	ALightButton* LightButtonBlue;
@@ -32,24 +32,12 @@ private:
 	ALightButton* LightButtonGreen;
 	ALightButton* LastToggled;
 
-	AScoreController* ScoreControllerPtr;
-
-	int32 Level;
-
-	int32 CurrentSequenceIndex;
-	TArray<int32> Sequence;
-	bool PlaySequence;
-	bool WaitingForPlayerMove;
-	int32 CurrentScore;
-
-	TMap<FString, class ALightButton> Lights;
-
 private:
-	void SetUpLevel();
-	void LevelUp();
-
-	ALightButton* AssignPointLightComponentToLightButton(TWeakObjectPtr<AActor> LightRef,
-		                                        TWeakObjectPtr<AActor> LightButtonRef);
+	ALightButton* SetUpLightButton(
+		TWeakObjectPtr<AActor> LightRef,
+		TWeakObjectPtr<AActor> LightButtonRef,
+		TWeakObjectPtr<AActor> PlaneRef,
+		int32 type);
 
 	bool CheckRefCast(TWeakObjectPtr<AActor> ActorRef, const UClass *ClassCast) const;
 

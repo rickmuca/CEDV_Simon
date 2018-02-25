@@ -5,14 +5,11 @@
 #include "TextWidgetTypes.h"
 #include "TextBlock.h"
 
-const FString AScoreController::SCORE_TAG = "Score: ";
-
 // Sets default values
 AScoreController::AScoreController()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
 // Called when the game starts or when spawned
@@ -30,7 +27,18 @@ void AScoreController::BeginPlay()
 				->GetWidgetFromName("TextScoreWidget");
 		}
 	}
-	
+
+	if (ResultTextWidget) {
+		pResultTextWidget = CreateWidget<UUserWidget>
+			(GetGameInstance(), ResultTextWidget);
+
+		if (pResultTextWidget.IsValid()) {
+			pResultTextWidget->AddToViewport();
+			pResultText = (UTextBlock*)pResultTextWidget
+				->GetWidgetFromName("TextResultWidget");
+			this->IncrementScoreBy(0);
+		}
+	}
 }
 
 // Called every frame
@@ -41,9 +49,65 @@ void AScoreController::Tick(float DeltaTime)
 
 void AScoreController::IncrementScoreBy(int32 points) 
 {
-	FString TextToShow = SCORE_TAG + FString::FromInt(points);
+	FString TextToShow = "";
 	if (pScoreText.IsValid()) {
+		TextToShow = "Score: " + FString::FromInt(points);
 		pScoreText->SetText(FText::FromString(TextToShow));
+	}
+}
+
+void AScoreController::ShowSuccess()
+{
+	if (pResultText.IsValid())
+	{
+		pResultText->SetText(FText::FromString("GREAT!!!"));
+		pResultText->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void AScoreController::ShowFail() 
+{
+	if (pResultText.IsValid())
+	{
+		pResultText->SetText(FText::FromString("WRONG!!!"));
+		pResultText->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void AScoreController::ShowGo()
+{
+	if (pResultText.IsValid())
+	{
+		pResultText->SetText(FText::FromString("GO!!!"));
+		pResultText->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void AScoreController::ShowReady()
+{
+	if (pResultText.IsValid())
+	{
+		pResultText->SetText(FText::FromString("READY..."));
+		pResultText->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void AScoreController::HideResult()
+{
+	if (pResultText.IsValid())
+	{
+		pResultText->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+bool AScoreController::IsShowingSomeResult() {
+	if (pResultText.IsValid())
+	{
+		return pResultText->IsVisible();
+	}
+	else
+	{
+		return false;
 	}
 }
 

@@ -16,7 +16,7 @@ const int32 GameStatus::GREEN_KEY = 3;
 // Sets default values
 AGameManager::AGameManager() :
 	AccumulatedDeltaTime(0.0f),
-	LightToggleDelay(2.0f),
+	LightToggleDelay(1.0f),
 	ShowResultDelay(3.5f),
 	AccumulatedDeltaTimeForResult(0.0f),
 	Started(false)

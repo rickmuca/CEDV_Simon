@@ -16,8 +16,6 @@ public:
 	static const int32 RED_KEY;
 	static const int32 GREEN_KEY;
 
-	static const int32 SEQ_MULTIPLIER;
-
 	GameStatus();
 	~GameStatus();
 

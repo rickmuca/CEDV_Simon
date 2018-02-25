@@ -2,8 +2,6 @@
 
 #include "GameStatus.h"
 
-const int32 GameStatus::SEQ_MULTIPLIER = 4;
-
 GameStatus::GameStatus() :
 	WaitingForPlayerMove(false),
 	PlaySequence(false),
@@ -46,7 +44,7 @@ void GameStatus::SetScoreController(AScoreController* ScoreControllerPtr)
 void GameStatus::SetUpLevel() 
 {
 	Sequence.Empty();
-	for (int i = 0; i < Level * GameStatus::SEQ_MULTIPLIER; i++) {
+	for (int i = 0; i < Level + 1; i++) {
 		Sequence.Emplace(FMath::RandRange(0, 3));
 	}
 

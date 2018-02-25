@@ -8,7 +8,7 @@
 // Sets default values
 ALightButton::ALightButton() :
 	AccumulatedDeltaTime(0.0f),
-	LightTurnedOnDelay(2.0f),
+	LightTurnedOnDelay(1.0f),
 	TurnedOn(false)
 {
  	LightIntensity = 6000.0f;

@@ -11,10 +11,10 @@
 class CEDV_SIMON_API GameStatus
 {
 public:
-	static const int32 YELLOW_KEY;
-	static const int32 BLUE_KEY;
-	static const int32 RED_KEY;
-	static const int32 GREEN_KEY;
+	static const int32 YELLOW_KEY = 0;
+	static const int32 BLUE_KEY = 1;
+	static const int32 RED_KEY = 2;
+	static const int32 GREEN_KEY = 3;
 
 	GameStatus();
 	~GameStatus();

@@ -8,15 +8,10 @@
 #include "Runtime/Engine/Classes/Engine/PointLight.h"
 #include "Runtime/Core/Public/Math/UnrealMathUtility.h"
 
-const int32 GameStatus::YELLOW_KEY = 0;
-const int32 GameStatus::BLUE_KEY = 1;
-const int32 GameStatus::RED_KEY = 2;
-const int32 GameStatus::GREEN_KEY = 3;
-
 // Sets default values
 AGameManager::AGameManager() :
 	AccumulatedDeltaTime(0.0f),
-	LightToggleDelay(1.0f),
+	LightToggleDelay(2.0f),
 	ShowResultDelay(3.5f),
 	AccumulatedDeltaTimeForResult(0.0f),
 	Started(false)
@@ -185,12 +180,12 @@ void AGameManager::Tick(float DeltaTime)
 				return;
 			}
 
-			if (LastToggled) {
+			//if (LastToggled) {
 				// Apagamos la anterior iluminada y esperamos a encender la siguiente
-				LastToggled->ToggleLight();
-				LastToggled = NULL;
-				return;
-			}
+			//	LastToggled->ToggleLight();
+			//	LastToggled = NULL;
+			//	return;
+			//}
 
 			if (CurrentStatus->EndOfSequenceReached()) {
 				CurrentStatus->ResetCurrentSequenceIndex();

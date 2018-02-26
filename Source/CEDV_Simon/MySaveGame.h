@@ -31,8 +31,10 @@ public:
 		TMap<FString, int32> GetRanking();
 	UFUNCTION(BlueprintCallable, Category = "RankingRow")
 		void SavePlayer(FString PlayerName, int Score);
-
+	UFUNCTION(BlueprintCallable, Category = "Ranking")
+		FString GetRankingString();
 	static void SaveMaxScore(FString PlayerName, int Score);
-
-	static void PrintRanking();
+	
+    static void PrintRanking();
+	
 };

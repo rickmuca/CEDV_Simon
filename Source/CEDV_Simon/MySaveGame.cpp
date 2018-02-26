@@ -85,3 +85,35 @@ void UMySaveGame::SavePlayer(FString PlayerName, int Score)
 {
 	UMySaveGame::SaveMaxScore(PlayerName, Score);
 }
+
+FString UMySaveGame::GetRankingString()
+{
+	UMySaveGame* LoadGameInstance = Cast<UMySaveGame>(
+		UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
+
+	LoadGameInstance = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot(
+		LoadGameInstance->SaveSlotName,
+		LoadGameInstance->UserIndex));
+
+	if (LoadGameInstance)
+	{
+		TMap<FString, int32> RankingMap = LoadGameInstance->Ranking;
+
+		FString TextToShow = "";
+		int index = 1;
+		for (auto& Elem : RankingMap)
+		{
+			TextToShow.Append(
+				*FString::Printf(
+					TEXT("%d. %s\t\t%d\n"),
+					index,
+					*Elem.Key,
+					Elem.Value
+				)
+			);
+			index++;
+		}
+		return TextToShow;
+	}
+	return "";
+}

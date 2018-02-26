@@ -12,7 +12,7 @@ AScoreController::AScoreController()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-// Called when the game starts or when spawned
+// Called when the game starts or when spawned, get references to text widgets
 void AScoreController::BeginPlay()
 {
 	Super::BeginPlay();

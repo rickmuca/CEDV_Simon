@@ -18,6 +18,7 @@ public:
 	// Sets default values for this actor's properties
 	ALightButton();
 
+	// Light properties and light component to toggle
 	UPROPERTY(VisibleAnywhere, Category = "Component")
 		class UPointLightComponent* PointLight;
 
@@ -30,20 +31,34 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Audio")
 		USoundCue* AudioCue;
 
+	// Audio component associated to light (tone)
 	UPROPERTY(BlueprintReadOnly, Category = "Audio")
 		UAudioComponent* AudioComponent;
 
 private:
+	// Light toogle delay
 	float AccumulatedDeltaTime;
 	float LightTurnedOnDelay;
 
+	// PLane for handling on click events
 	AActor* Plane;
+
+	// GameStatus to evaluate every click
 	GameStatus* CurrentStatus;
+
+	// Type code associated with this light
 	int32 Type;
+
+	// Is now turned on?
 	bool TurnedOn;
 
+	// Evaluate current click
 	void EvaluateClick();
+
+	// Sound handling, configure
 	void SetUpAudioComponent(int32 LightButtonType);
+
+	// Play associated sound
 	void PlaySound();
 
 protected:

@@ -12,11 +12,13 @@
 AGameManager::AGameManager() :
 	AccumulatedDeltaTime(0.0f),
 	LightToggleDelay(2.0f),
-	ShowResultDelay(3.5f),
+	ShowResultDelay(1.5f),
 	AccumulatedDeltaTimeForResult(0.0f),
 	Started(false)
 {
+	// Set up a new game status
 	this->CurrentStatus = new GameStatus();
+
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
@@ -26,6 +28,7 @@ void AGameManager::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Get all ref to actors
 	TWeakObjectPtr<AActor> YellowLightRef;
 	FString YellowLightCtl = FString(TEXT("YellowLight"));
 	TWeakObjectPtr<AActor> YellowLightButtonRef;
@@ -136,16 +139,20 @@ void AGameManager::BeginPlay()
 		}
 	}
 
+	// Configure Lights, it needs a PointLight to be shown, a place to listen to click events
+	// and a tone code for playing a specific sound
 	LightButtonYellow = SetUpLightButton(YellowLightRef, YellowLightButtonRef, YellowPlaneRef, GameStatus::YELLOW_KEY);
 	LightButtonBlue = SetUpLightButton(BlueLightRef, BlueLightButtonRef, BluePlaneRef, GameStatus::BLUE_KEY);
 	LightButtonRed = SetUpLightButton(RedLightRef, RedLightButtonRef, RedPlaneRef, GameStatus::RED_KEY);
 	LightButtonGreen = SetUpLightButton(GreenLightRef, GreenLightButtonRef, GreenPlaneRef, GameStatus::GREEN_KEY);
 
+	// Get ScoreController and messages UI and pass reference to GameStatus
 	if (CheckRefCast(ScoreControllerRef, AScoreController::StaticClass())) {
 		AScoreController* ScoreControllerPtr = Cast<AScoreController>(ScoreControllerRef.Get());
 		CurrentStatus->SetScoreController(ScoreControllerPtr);
 	}
 
+	// Configure new level
 	CurrentStatus->LevelUp();
 }
 
@@ -156,14 +163,17 @@ void AGameManager::Tick(float DeltaTime)
 
 	AccumulatedDeltaTime += DeltaTime;
 
+	// Are we showing some message?
 	if (CurrentStatus->IsShowingSomeResult()) {
 		AccumulatedDeltaTimeForResult += DeltaTime;
-		if (AccumulatedDeltaTime >= ShowResultDelay)
+		if (AccumulatedDeltaTime >= ShowResultDelay) // Message show delay
 		{
 			AccumulatedDeltaTimeForResult = 0.0f;
 			AccumulatedDeltaTime = 0.0f;
+
+			// Hide message on timeout
 			CurrentStatus->HideResult();
-			if (CurrentStatus->GameOver())
+			if (CurrentStatus->GameOver()) // Player misclick?
 			{
 				this->EndSimon();
 			}
@@ -171,18 +181,21 @@ void AGameManager::Tick(float DeltaTime)
 		return;
 	}
 
+	// Light toggle on/off delay
 	if (AccumulatedDeltaTime >= LightToggleDelay)
 	{
 		AccumulatedDeltaTime = 0.0f;
 		
+		// Algorithm dont manipulate lights if it is in player turn or showing some message
 		if (CurrentStatus->IsPlayingSequence() && !CurrentStatus->IsShowingSomeResult())
 		{
-			if (!Started) {
+			if (!Started) { // Sequence tone not yet started, so we show ready and wait to start
 				CurrentStatus->ShowReady();
 				Started = true;
 				return;
 			}
 
+			// Tone sequence already played?
 			if (CurrentStatus->EndOfSequenceReached()) {
 				CurrentStatus->ResetCurrentSequenceIndex();
 				CurrentStatus->SetPlayingSequence(false);
@@ -190,9 +203,11 @@ void AGameManager::Tick(float DeltaTime)
 				CurrentStatus->ShowGo();
 			}
 
+			// Are we playing sequence?
 			if (CurrentStatus->IsPlayingSequence()) {
 				
 				bool match = true;
+				// Get next light to turn on and play tone
 				switch (CurrentStatus->GetCurrentItemInSequence()) {
 				case GameStatus::YELLOW_KEY:
 					if (LightButtonYellow) {
@@ -218,13 +233,17 @@ void AGameManager::Tick(float DeltaTime)
 					match = false;
 				}
 
-				if (match) {
+				if (match) { // found
+				    // Play tone
 					LastToggled->ToggleLight();
+					// Set up next
 					CurrentStatus->IncrementCurrentSequenceIndex();
 				}
 			}
 			else 
 			{
+				// If we just finish to play tone sequence, set started to false
+				// see line 199 (Tone sequence already played?)
 				if (!CurrentStatus->IsPlayingSequence())
 				{
 					Started = false;
@@ -234,6 +253,7 @@ void AGameManager::Tick(float DeltaTime)
 	}
 }
 
+// Get the LightButton attributes and set the up
 ALightButton* AGameManager::SetUpLightButton(
 	TWeakObjectPtr<AActor> LightRef,
 	TWeakObjectPtr<AActor> LightButtonRef,
@@ -264,6 +284,7 @@ ALightButton* AGameManager::SetUpLightButton(
 	}
 }
 
+// Check cast according to AActor ref and AActor specific sub class
 bool AGameManager::CheckRefCast(TWeakObjectPtr<AActor> ActorRef, const UClass *ClassCast) const 
 {
 	bool result = ActorRef.IsValid();
@@ -271,6 +292,7 @@ bool AGameManager::CheckRefCast(TWeakObjectPtr<AActor> ActorRef, const UClass *C
 	return result;
 }
 
+// Open main menu on Game Over
 void AGameManager::EndSimon()
 {
 	UWorld* TheWorld = GetWorld();

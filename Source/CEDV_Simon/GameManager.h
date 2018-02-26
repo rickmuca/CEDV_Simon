@@ -19,13 +19,20 @@ public:
 	AGameManager();
 
 private:
+	// Holds game logic and status
 	GameStatus* CurrentStatus;
+
+	// Delay to play tone within sequence
 	float AccumulatedDeltaTime;
 	float LightToggleDelay;
+
+	// Show screen message delay
 	float ShowResultDelay;
 	float AccumulatedDeltaTimeForResult;
+
 	bool Started;
 
+	// Pointer to each light button
 	ALightButton* LightButtonYellow;
 	ALightButton* LightButtonBlue;
 	ALightButton* LightButtonRed;

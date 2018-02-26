@@ -69,33 +69,42 @@ void ALightButton::ToggleLight()
 	if (PointLight) {
 		PointLight->ToggleVisibility();
 		if (!TurnedOn) {
-			// Play CUE
+			// Play CUE if were already turned off because if about to turn it on
 			this->PlaySound();
 		}
 		this->TurnedOn = !this->TurnedOn;
+
+		// reset delay
 		AccumulatedDeltaTime = 0.0f;
+
+		// Call on tick again
 		PrimaryActorTick.bCanEverTick = true;
 	}
 }
 
+// Set plane to handle click events
 void ALightButton::SetPLane(AActor* LightPlane) 
 {
 	Plane = LightPlane;
 	if (Plane) {
+		// Configure click listener
 		Plane->OnClicked.AddDynamic(this, &ALightButton::LightClicked);
 	}
 }
 
+// Set current game status instance
 void ALightButton::SetGameStatus(GameStatus* CurrentStatus) {
 	this->CurrentStatus = CurrentStatus;
 }
 
+// Set light tone type
 void ALightButton::SetType(int32 Type) {
 	this->Type = Type;
 
 	this->SetUpAudioComponent(this->Type);
 }
 
+// Configuring sound...
 void ALightButton::SetUpAudioComponent(int32 LightButtonType) {
 	// Store a reference to the Cue asset - we'll need it later.
 	switch (LightButtonType) {
@@ -127,10 +136,13 @@ void ALightButton::SetUpAudioComponent(int32 LightButtonType) {
 	}
 }
 
+// On light clicked during player turn
 void ALightButton::LightClicked(AActor* TouchedActor, FKey ButtonPressed)
 {
+	// Is player turn?
 	if (CurrentStatus && CurrentStatus->IsWaitingForPlayerMove()) {
 		this->ToggleLight();
+		// Evaluate click in game tone sequence
 		this->EvaluateClick();
 	}
 }
@@ -145,6 +157,7 @@ void ALightButton::PlaySound()
 	}
 }
 
+// Evaluate click in current game status
 void ALightButton::EvaluateClick() 
 {
 	CurrentStatus->Evaluate(this->Type);
@@ -157,6 +170,7 @@ void ALightButton::Tick(float DeltaTime)
 
 	AccumulatedDeltaTime += DeltaTime;
 
+	// If toggle delay expires, toggle it again...
 	if (AccumulatedDeltaTime >= LightTurnedOnDelay)
 	{
 		AccumulatedDeltaTime = 0.0f;

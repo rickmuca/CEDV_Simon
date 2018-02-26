@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "ScoreController.generated.h"
 
+/* handles text widgets added to show on screen messages */
+
 UCLASS()
 class CEDV_SIMON_API AScoreController : public AActor
 {
@@ -23,21 +25,30 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	// Score text widget
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ScoreController")
 	TSubclassOf<class UUserWidget> ScoreTextWidget;
 	TWeakObjectPtr<class UUserWidget> pScoreTextWidget;
 	TWeakObjectPtr<class UTextBlock> pScoreText;
 
+	// On screen message widget
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ResultController")
 	TSubclassOf<class UUserWidget> ResultTextWidget;
 	TWeakObjectPtr<class UUserWidget> pResultTextWidget;
 	TWeakObjectPtr<class UTextBlock> pResultText;
 
+	// Update score
 	void IncrementScoreBy(int32 points);
+
+	// Showing on screen messages
 	void ShowSuccess();
 	void ShowFail();
 	void ShowGo();
 	void ShowReady();
+
+	// Hide last on screen message
 	void HideResult();
+
+	// Is showing some on screen message? 
 	bool IsShowingSomeResult();
 };

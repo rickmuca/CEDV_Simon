@@ -46,6 +46,8 @@ void GameStatus::SetScoreController(AScoreController* ScoreControllerPtr)
 	this->ScoreControllerPtr = ScoreControllerPtr;
 }
 
+// Sets a new level, initially we have two tones, the we increase by one
+// for each level
 void GameStatus::SetUpLevel() 
 {
 	/*Sequence.Empty();
@@ -66,21 +68,25 @@ void GameStatus::SetUpLevel()
 	SetPlayingSequence(true);
 }
 
+// Go level up
 void GameStatus::LevelUp() 
 {
 	Level++;
 	this->SetUpLevel();
 }
 
+// All tones played by algorithm or player?
 bool GameStatus::EndOfSequenceReached() 
 {
 	return CurrentSequenceIndex > Sequence.Num() - 1;
 }
 
+// Current Score
 int32 GameStatus::GetScore() {
 	return CurrentScore;
 }
 
+// Acum score
 void GameStatus::IncrementScoreBy(int32 Score) 
 {
 	CurrentScore = CurrentScore + Score;
@@ -89,21 +95,27 @@ void GameStatus::IncrementScoreBy(int32 Score)
 	}
 }
 
+// Current tone to be played/to play whitin sequence
 int32 GameStatus::GetCurrentItemInSequence() 
 {
 	return Sequence[CurrentSequenceIndex];
 }
 
+// Reset tone sequence Index to start
+// We should restart this index on every new level and player turn
 void GameStatus::ResetCurrentSequenceIndex()
 {
 	CurrentSequenceIndex = 0;
 }
 
+// Increment tone sequence index to play
+// If Player is right we also increment it 
 void GameStatus::IncrementCurrentSequenceIndex() 
 {
 	CurrentSequenceIndex++;
 }
 
+// Show success message on screen
 void GameStatus::ShowSuccess()
 {
 	if (ScoreControllerPtr) {
@@ -111,6 +123,7 @@ void GameStatus::ShowSuccess()
 	}
 }
 
+// Show wrong message on screen
 void GameStatus::ShowWrong() 
 {
 	if (ScoreControllerPtr) {
@@ -118,6 +131,7 @@ void GameStatus::ShowWrong()
 	}
 }
 
+// Show go!! message on screen
 void GameStatus::ShowGo()
 {
 	if (ScoreControllerPtr) {
@@ -125,6 +139,7 @@ void GameStatus::ShowGo()
 	}
 }
 
+// Show ready message on screen
 void GameStatus::ShowReady()
 {
 	if (ScoreControllerPtr) {
@@ -132,6 +147,7 @@ void GameStatus::ShowReady()
 	}
 }
 
+// Hide last message on screen
 void GameStatus::HideResult()
 {
 	if (ScoreControllerPtr) {
@@ -139,6 +155,7 @@ void GameStatus::HideResult()
 	}
 }
 
+// Is currently showing some message during gameplay?
 bool GameStatus::IsShowingSomeResult() {
 	if (ScoreControllerPtr) {
 		return ScoreControllerPtr->IsShowingSomeResult();
@@ -149,23 +166,25 @@ bool GameStatus::IsShowingSomeResult() {
 	}
 }
 
+// Evaluate a click done by player
+// Type -> Tone code played by player
 void GameStatus::Evaluate(int32 Type) 
 {
 	int32 Item = this->GetCurrentItemInSequence();
 
-	if (Item == Type)
+	if (Item == Type) // Correct, increment score and tone sequence index
 	{
 		this->IncrementScoreBy(100);
 		this->IncrementCurrentSequenceIndex();
 	}
-	else
+	else // Wrong, save game and finish
 	{
 		this->ShowWrong();
 		this->SaveGame();
 		this->Finish = true;
 	}
 
-	if (this->EndOfSequenceReached()) {
+	if (this->EndOfSequenceReached()) { // Sequence played correctly, level up!
 		this->ShowSuccess();
 		this->ResetCurrentSequenceIndex();
 		this->LevelUp();
@@ -175,12 +194,14 @@ void GameStatus::Evaluate(int32 Type)
 	}
 }
 
+// Save current score and name
 void GameStatus::SaveGame()
 {	
 	UMySaveGame::SaveMaxScore(PlayerName, CurrentScore);
-	//UMySaveGame::PrintRanking();
+	UMySaveGame::PrintRanking();
 }
 
+// Set game about to be finished
 bool GameStatus::GameOver()
 {
 	return this->Finish;

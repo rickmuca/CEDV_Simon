@@ -163,6 +163,10 @@ void AGameManager::Tick(float DeltaTime)
 			AccumulatedDeltaTimeForResult = 0.0f;
 			AccumulatedDeltaTime = 0.0f;
 			CurrentStatus->HideResult();
+			if (CurrentStatus->GameOver())
+			{
+				this->EndSimon();
+			}
 		}
 		return;
 	}
@@ -265,5 +269,14 @@ bool AGameManager::CheckRefCast(TWeakObjectPtr<AActor> ActorRef, const UClass *C
 	bool result = ActorRef.IsValid();
 	result = result && ActorRef.Get()->IsA(ClassCast);
 	return result;
+}
+
+void AGameManager::EndSimon()
+{
+	UWorld* TheWorld = GetWorld();
+
+	FString CurrentLevel = TheWorld->GetMapName();
+
+	UGameplayStatics::OpenLevel(GetWorld(), "MainMap");
 }
 

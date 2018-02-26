@@ -42,6 +42,7 @@ public:
 	bool IsShowingSomeResult();
 	void Evaluate(int32 Type);
 	void SaveGame();
+	bool GameOver();
 
 private:
 	bool WaitingForPlayerMove;
@@ -56,6 +57,8 @@ private:
 	AScoreController* ScoreControllerPtr;
 
 	FString PlayerName;
+
+	bool Finish;
 
 	void SetUpLevel();
 };

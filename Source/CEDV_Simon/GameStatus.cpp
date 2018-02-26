@@ -10,7 +10,8 @@ GameStatus::GameStatus() :
 	Level(0),
 	CurrentScore(0),
 	CurrentSequenceIndex(0),
-	PlayerName("Chuster")
+	PlayerName("Chuster"),
+	Finish(false)
 {
 	Sequence.Empty();
 }
@@ -161,7 +162,7 @@ void GameStatus::Evaluate(int32 Type)
 	{
 		this->ShowWrong();
 		this->SaveGame();
-		//Close Level aka Open MainMenu
+		this->Finish = true;
 	}
 
 	if (this->EndOfSequenceReached()) {
@@ -177,5 +178,10 @@ void GameStatus::Evaluate(int32 Type)
 void GameStatus::SaveGame()
 {	
 	UMySaveGame::SaveMaxScore(PlayerName, CurrentScore);
-	UMySaveGame::PrintRanking();
+	//UMySaveGame::PrintRanking();
+}
+
+bool GameStatus::GameOver()
+{
+	return this->Finish;
 }

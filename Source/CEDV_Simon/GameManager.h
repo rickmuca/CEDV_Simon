@@ -40,6 +40,7 @@ private:
 		int32 type);
 
 	bool CheckRefCast(TWeakObjectPtr<AActor> ActorRef, const UClass *ClassCast) const;
+	void EndSimon();
 
 protected:
 	// Called when the game starts or when spawned

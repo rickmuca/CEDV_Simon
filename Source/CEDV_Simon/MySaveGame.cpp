@@ -15,13 +15,33 @@ UMySaveGame::UMySaveGame()
 
 void UMySaveGame::SaveMaxScore(FString PlayerName, int Score)
 {
-	UMySaveGame* SaveGameInstance = Cast<UMySaveGame>(
+	UMySaveGame* LoadGameInstance = Cast<UMySaveGame>(
 		UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
 
-	SaveGameInstance->Ranking.Add(PlayerName, Score);
+	LoadGameInstance = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot(
+		LoadGameInstance->SaveSlotName,
+		LoadGameInstance->UserIndex));
 
-	UGameplayStatics::SaveGameToSlot(SaveGameInstance,
-		SaveGameInstance->SaveSlotName, SaveGameInstance->UserIndex);
+	if (LoadGameInstance)
+	{
+		TMap<FString, int32> RankingMap = LoadGameInstance->Ranking;
+
+		RankingMap.Add(PlayerName, Score);
+		LoadGameInstance->Ranking = RankingMap;
+		UGameplayStatics::SaveGameToSlot(LoadGameInstance,
+			LoadGameInstance->SaveSlotName, LoadGameInstance->UserIndex);
+
+	}
+	else
+	{
+		UMySaveGame* SaveGameInstance = Cast<UMySaveGame>(
+			UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
+
+		SaveGameInstance->Ranking.Add(PlayerName, Score);
+
+		UGameplayStatics::SaveGameToSlot(SaveGameInstance,
+			SaveGameInstance->SaveSlotName, SaveGameInstance->UserIndex);
+	}
 }
 
 void UMySaveGame::PrintRanking()
@@ -71,7 +91,7 @@ TMap<FString, int32> UMySaveGame::GetRanking()
 		TMap<FString, int32> RankingMap = LoadGameInstance->Ranking;
 
 		RankingMap.ValueSort([](const int32 A, const int32 B) {
-			return A < B; // sort strings by length
+			return A > B; // sort strings by length
 		});
 
 		return RankingMap;
@@ -88,32 +108,24 @@ void UMySaveGame::SavePlayer(FString PlayerName, int Score)
 
 FString UMySaveGame::GetRankingString()
 {
-	UMySaveGame* LoadGameInstance = Cast<UMySaveGame>(
-		UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
+	TMap<FString, int32> RankingMap = GetRanking();
 
-	LoadGameInstance = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot(
-		LoadGameInstance->SaveSlotName,
-		LoadGameInstance->UserIndex));
-
-	if (LoadGameInstance)
+	FString TextToShow = "";
+	int index = 1;
+	for (auto& Elem : RankingMap)
 	{
-		TMap<FString, int32> RankingMap = LoadGameInstance->Ranking;
-
-		FString TextToShow = "";
-		int index = 1;
-		for (auto& Elem : RankingMap)
-		{
-			TextToShow.Append(
-				*FString::Printf(
-					TEXT("%d. %s\t\t%d\n"),
-					index,
-					*Elem.Key,
-					Elem.Value
-				)
-			);
-			index++;
-		}
-		return TextToShow;
+		TextToShow.Append(
+			*FString::Printf(
+				TEXT("%d. %s\t\t%d\n"),
+				index,
+				*Elem.Key,
+				Elem.Value
+			)
+		);
+		index++;
+		// Only return the first 6 elements
+		if (index > 6)
+			break;
 	}
-	return "";
+	return TextToShow;
 }

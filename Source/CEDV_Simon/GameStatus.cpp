@@ -10,7 +10,6 @@ GameStatus::GameStatus() :
 	Level(0),
 	CurrentScore(0),
 	CurrentSequenceIndex(0),
-	PlayerName("Chuster"),
 	Finish(false)
 {
 	Sequence.Empty();
@@ -197,7 +196,10 @@ void GameStatus::Evaluate(int32 Type)
 // Save current score and name
 void GameStatus::SaveGame()
 {	
-	UMySaveGame::SaveMaxScore(PlayerName, CurrentScore);
+	FDateTime currentDateTime = FDateTime::Now();
+
+	// Player name will be the current date in this version
+	UMySaveGame::SaveMaxScore(currentDateTime.ToString(), CurrentScore);
 	UMySaveGame::PrintRanking();
 }
 
